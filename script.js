@@ -1,21 +1,4 @@
-// Check if the user has already clicked the kudos button
-let kudosCount = localStorage.getItem('kudosCount') || 0;
-let hasGivenKudos = localStorage.getItem('hasGivenKudos') === 'true';
 
-// Update the displayed kudos count
-document.getElementById("kudosCountDisplay").textContent = `Kudos: ${kudosCount}`;
-
-// If the button is clicked
-document.getElementById("kudosBtn").onclick = function() {
-    if (hasGivenKudos) {
-        alert("You already left kudos here, but I appreciate it if you like it much!");
-    } else {
-        kudosCount++;
-        localStorage.setItem('kudosCount', kudosCount);
-        localStorage.setItem('hasGivenKudos', 'true');
-        document.getElementById("kudosCountDisplay").textContent = `Kudos: ${kudosCount}`;
-    }
-};
 
 
 function checkPassword() {
