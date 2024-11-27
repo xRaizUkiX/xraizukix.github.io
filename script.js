@@ -1,24 +1,21 @@
-let kudosCount = 0; // Initialize kudos count
-let hasClickedKudos = false; // Track if the user has clicked the Kudos button
+// Check if the user has already clicked the kudos button
+let kudosCount = localStorage.getItem('kudosCount') || 0;
+let hasGivenKudos = localStorage.getItem('hasGivenKudos') === 'true';
 
-function incrementKudos() {
-    // Check if the user has already clicked the Kudos button
-    if (hasClickedKudos) {
-        // Show the message that they have already left kudos
-        document.getElementById("kudosMessage").style.display = "block";
-        return; // Prevent further execution
+// Update the displayed kudos count
+document.getElementById("kudosCountDisplay").textContent = `Kudos: ${kudosCount}`;
+
+// If the button is clicked
+document.getElementById("kudosBtn").onclick = function() {
+    if (hasGivenKudos) {
+        alert("You already left kudos here, but I appreciate it if you like it much!");
+    } else {
+        kudosCount++;
+        localStorage.setItem('kudosCount', kudosCount);
+        localStorage.setItem('hasGivenKudos', 'true');
+        document.getElementById("kudosCountDisplay").textContent = `Kudos: ${kudosCount}`;
     }
-
-    // Increment the kudos count and update display
-    kudosCount++;
-    document.getElementById("kudosCount").textContent = "Kudos Count: " + kudosCount;
-
-    // Mark that the user has clicked the Kudos button
-    hasClickedKudos = true;
-
-    // Optionally, you could save this information in localStorage so it persists across page reloads
-    // localStorage.setItem("hasClickedKudos", "true");
-}
+};
 
 
 function checkPassword() {
