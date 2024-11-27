@@ -2,7 +2,7 @@ function checkPassword() {
     var password = prompt("Please enter your password", "");
     
     // Convert the input to lowercase for case-insensitive comparison
-    if (password.toLowerCase() === "can i talk to you") {
+    if (password.toLowerCase() === "boring") {
         chatbot();
     } else if (password === "1519") {
         alert("Access granted. Press OK to continue.");
@@ -20,7 +20,7 @@ function checkPassword() {
 
 function chatbot() {
     let responses = [
-        "Hello, Let me introduce, I am a bot so my response is not exactly what you want, but how can I help you today?",
+       "so you summoned me, idk who are you, you're clever and I like it", "Let me introduce, I am a bot so my response is not exactly what you want, but how can I help you today?",
         "What?", 
         "You know, sometimes I don't understand people, and that's normal.",
         // ... (Other responses) 
