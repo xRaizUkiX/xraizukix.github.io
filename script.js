@@ -1,6 +1,5 @@
 
 
-
 function checkPassword() {
     var password = prompt("Please enter your password", "");
     
@@ -74,8 +73,13 @@ function saveNote() {
     document.getElementById("noteInput").value = "";
 }
 
-// Kudos Button Functionality
-function incrementKudos() {
-    kudosCount++; // Increment the kudos counter
-    document.getElementById("kudosCount").textContent = "Kudos Count: " + kudosCount; // Update the display
-}
+// Handle click event for "Yes ♡" button
+document.getElementById("likeButton").addEventListener("click", function() {
+    // Add spark animation to the button
+    this.classList.add("spark");
+
+    // Show alert
+    setTimeout(function() {
+        alert("Thank you, you liked it huh");
+    }, 500);  // Delay to show after animation
+});
