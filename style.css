@@ -1,1 +1,154 @@
-change
+/* Base Styles */
+body {
+    background-color: #282c34;
+    margin: 0;
+    color: white;
+    font-family: Arial, sans-serif;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 20px;
+}
+
+h2 {
+    margin: 0;
+    font-size: 24px;
+    text-align: center;
+}
+
+hr {
+    width: 80%;
+    border: 1px solid white;
+    margin: 10px 0;
+}
+
+/* Common styles for all buttons */
+button {
+    margin-top: 10px; /* Space between buttons */
+    padding: 14px 28px; /* Consistent padding */
+    font-size: 16px; /* Consistent font size */
+    font-weight: bold;
+    color: white;
+    background: linear-gradient(45deg, #ff416c, #ff4b2b);
+    border: none;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(255, 75, 43, 0.7);
+}
+
+button::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 200%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.6) 0%, transparent 70%);
+    transform: translateX(-50%) scale(0);
+    transition: transform 0.5s ease;
+    z-index: 1;
+    pointer-events: none;
+}
+
+button:hover::after {
+    transform: translateX(-50%) scale(1);
+}
+
+button:focus {
+    outline: none;
+}
+
+/* Unique styles for btn2 and btn3 */
+.btn2 {
+    background: linear-gradient(45deg, #42a5f5, #478ed1);
+}
+
+.btn3 {
+    background: linear-gradient(45deg, #66bb6a, #43a047);
+}
+
+/* Position btn4 at the bottom-right */
+.btn4 {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    background: linear-gradient(45deg, #ffdd57, #ffb900); /* Gold gradient */
+}
+
+/* Style for the kudos count and message */
+#kudosCount {
+    position: fixed;
+    bottom: 60px;
+    right: 20px;
+    font-size: 12px;
+    color: white;
+}
+
+#kudosMessage {
+    position: fixed;
+    bottom: 40px;
+    right: 20px;
+    font-size: 14px;
+    color: #ffeb3b; /* Yellow for message */
+    font-style: italic;
+}
+
+
+/* Media Queries for Responsiveness */
+
+/* Large screens (desktops) */
+@media (min-width: 1024px) {
+    h2 {
+        font-size: 32px;
+    }
+
+    hr {
+        width: 60%;
+    }
+
+    button {
+        padding: 16px 32px; /* Adjusted for larger screens */
+        font-size: 18px;
+    }
+}
+
+/* Medium screens (tablets) */
+@media (min-width: 768px) and (max-width: 1023px) {
+    h2 {
+        font-size: 28px;
+    }
+
+    hr {
+        width: 70%;
+    }
+
+    button {
+        padding: 14px 30px; /* Consistent size */
+        font-size: 17px;
+    }
+}
+
+/* Small screens (phones) */
+@media (max-width: 767px) {
+    h2 {
+        font-size: 20px;
+    }
+
+    hr {
+        width: 90%;
+    }
+
+    button {
+        padding: 12px 24px; /* Consistent size */
+        font-size: 15px;
+    }
+}
