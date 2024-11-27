@@ -67,39 +67,16 @@ button:focus {
     outline: none;
 }
 
-/* New styles for btn4 */
-.btn4 {
-    background-color: #ff4b2b;
-    padding: 14px 28px;
-    font-size: 18px;
-    font-weight: bold;
-    border-radius: 8px;
-    cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-    transition: transform 0.2s ease;
-    position: absolute;
-    bottom: 20px;
+/* Unique styles for btn2 and btn3 */
+.btn2 {
+    background: linear-gradient(45deg, #42a5f5, #478ed1);
 }
 
-#likeButton {
-    left: 50%;
-    transform: translateX(-50%);
+.btn3 {
+    background: linear-gradient(45deg, #66bb6a, #43a047);
 }
 
-#likeButton.spark {
-    animation: sparkEffect 0.5s ease-out;
-}
 
-@keyframes sparkEffect {
-    0% {
-        transform: scale(1);
-        box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.8);
-    }
-    100% {
-        transform: scale(1.2);
-        box-shadow: 0 0 15px 4px rgba(255, 255, 255, 0.8);
-    }
-}
 
 /* Media Queries for Responsiveness */
 
