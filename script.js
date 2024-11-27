@@ -1,4 +1,3 @@
-
 function checkPassword() {
     var password = prompt("Please enter your password", "");
     
