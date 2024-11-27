@@ -1,5 +1,4 @@
 
-
 function checkPassword() {
     var password = prompt("Please enter your password", "");
     
@@ -72,14 +71,3 @@ function saveNote() {
     document.getElementById("savedNotes").appendChild(noteDiv);
     document.getElementById("noteInput").value = "";
 }
-
-// Handle click event for "Yes ♡" button
-document.getElementById("likeButton").addEventListener("click", function() {
-    // Add spark animation to the button
-    this.classList.add("spark");
-
-    // Show alert
-    setTimeout(function() {
-        alert("Thank you, you liked it huh");
-    }, 500);  // Delay to show after animation
-});
