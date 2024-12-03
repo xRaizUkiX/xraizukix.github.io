@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anonymous Messages</title>
+    <style>
+        body {
+            background-color: #C8AD7F;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        h5 {
+            text-align: center;
+        }
+
+        #inputSection {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        #userInput {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            border: 2px solid #333;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+
+        #submitMessage {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            background-color: #333;
+            color: #fff;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        #submitMessage:hover {
+            background-color: #555;
+        }
+
+        #messages {
+            width: 100%;
+            max-width: 500px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+            overflow-y: auto;
+            max-height: 300px;
+        }
+
+        .message {
+            background-color: #f9f9f9;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            word-wrap: break-word;
+        }
+
+        .message .timestamp {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .message:last-child {
+            margin-bottom: 0;
+        }
+
+        @media (max-width: 600px) {
+            #userInput, #submitMessage, #messages {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h2>Unspoken Words</h2>
+    <br>
+    <h5><i>Feel free to write anything you want, your identity will remain anonymous.</i></h5>
+    <div id="inputSection">
+        <textarea id="userInput" placeholder="share a thought...(only you can view whatever you write here.)" rows="4"></textarea>
+        <button id="submitMessage">Submit</button>
+    </div>
+    <div id="messages">
+        <!-- Messages will appear here -->
+    </div>
+
+    <script>
+        const userInput = document.getElementById("userInput");
+        const submitMessage = document.getElementById("submitMessage");
+        const messages = document.getElementById("messages");
+
+        // Function to load messages from localStorage
+        const loadMessages = () => {
+            const savedMessages = JSON.parse(localStorage.getItem("messages")) || [];
+            savedMessages.forEach(({ text, timestamp }) => {
+                addMessageToDOM(text, timestamp);
+            });
+        };
+
+        // Function to save messages to localStorage
+        const saveMessage = (text, timestamp) => {
+            const savedMessages = JSON.parse(localStorage.getItem("messages")) || [];
+            savedMessages.push({ text, timestamp });
+            localStorage.setItem("messages", JSON.stringify(savedMessages));
+        };
+
+        // Function to add a message to the DOM
+        const addMessageToDOM = (text, timestamp) => {
+            const messageDiv = document.createElement("div");
+            messageDiv.classList.add("message");
+            messageDiv.innerHTML = `
+                <p>${text}</p>
+                <div class="timestamp">${timestamp}</div>
+            `;
+            messages.appendChild(messageDiv);
+        };
+
+        // Event listener for message submission
+        submitMessage.addEventListener("click", () => {
+            const messageText = userInput.value.trim();
+
+            if (messageText) {
+                const now = new Date();
+                const timestamp = now.toLocaleString();
+
+                // Save message and add to DOM
+                saveMessage(messageText, timestamp);
+                addMessageToDOM(messageText, timestamp);
+
+                // Clear input field and auto-scroll
+                userInput.value = "";
+                messages.scrollTop = messages.scrollHeight;
+            } else {
+                alert("Please enter a message before submitting!");
+            }
+        });
+
+        // Load messages on page load
+        window.addEventListener("load", loadMessages);
+    </script>
+</body>
+</html>
