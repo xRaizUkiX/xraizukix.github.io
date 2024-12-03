@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Guessing Game</title>
+    <style>
+        /* General Styles */
+        body {
+            background-color: #444;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .play-button {
+            background-color: #003366;
+            color: white;
+            font-size: 40px;
+            border: none;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .play-button:hover {
+            animation: glow 1s infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 10px #003366; }
+            50% { box-shadow: 0 0 30px #0066cc; }
+        }
+
+        .mode-buttons, .game-section {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .mode-buttons button {
+            background-color: #003366;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .game-section {
+            margin-top: 30px;
+        }
+
+        .message-box {
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+
+        .input-section input {
+            padding: 15px;
+            font-size: 18px;
+            border-radius: 5px;
+            border: none;
+            margin-right: 10px;
+            width: 250px;
+            text-align: center;
+        }
+
+        .input-section button {
+            padding: 15px 25px;
+            background-color: #00509e;
+            color: white;
+            border: none;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .input-section button:hover {
+            background-color: #0073e6;
+        }
+    </style>
+</head>
+<body>
+    <button class="play-button" id="playButton">▶️</button>
+
+    <div class="mode-buttons" id="modeButtons">
+        <p>Choose guess mode before we start:</p>
+        <button id="wordGuessButton">Word Guess</button>
+        <button id="numberGuessButton">Number Guess</button>
+    </div>
+
+    <div class="game-section" id="gameSection">
+        <p class="message-box" id="messageBox"></p>
+        <div class="input-section" id="inputSection">
+            <input type="text" id="userInput" placeholder="Enter your guess here">
+            <button id="submitGuess">Submit</button>
+        </div>
+    </div>
+
+    <script>
+        const playButton = document.getElementById("playButton");
+        const modeButtons = document.getElementById("modeButtons");
+        const wordGuessButton = document.getElementById("wordGuessButton");
+        const numberGuessButton = document.getElementById("numberGuessButton");
+        const gameSection = document.getElementById("gameSection");
+        const messageBox = document.getElementById("messageBox");
+        const inputSection = document.getElementById("inputSection");
+        const userInput = document.getElementById("userInput");
+        const submitGuess = document.getElementById("submitGuess");
+
+        let currentGame = null;
+
+        playButton.addEventListener("click", () => {
+            modeButtons.style.display = "block";
+        });
+
+        wordGuessButton.addEventListener("click", startWordGuess);
+        numberGuessButton.addEventListener("click", startNumberGuess);
+
+        function startWordGuess() {
+            modeButtons.style.display = "none";
+            gameSection.style.display = "block";
+            const words = [
+                { word: "solitude", hint: "The state of being alone or isolated." },
+                { word: "pineapple", hint: "A fine fruit." },
+                { word: "depression", hint: "Persistent loss of interest." }
+            ];
+            const selectedWord = words[Math.floor(Math.random() * words.length)];
+            const word = selectedWord.word.toLowerCase();
+            const hint = selectedWord.hint;
+            let guessedWord = "_".repeat(word.length).split("");
+            let attempts = 3;
+
+            messageBox.textContent = `Hint: ${hint}\nWord: ${guessedWord.join(" ")}\nAttempts left: ${attempts}`;
+            currentGame = function() {
+                const guess = userInput.value.toLowerCase();
+                userInput.value = "";
+                if (!guess || guess.length !== 1 || !/^[a-z]$/.test(guess)) {
+                    messageBox.textContent = "Invalid input. Please enter a single letter.";
+                    return;
+                }
+                if (word.includes(guess)) {
+                    for (let i = 0; i < word.length; i++) {
+                        if (word[i] === guess) guessedWord[i] = guess;
+                    }
+                    if (guessedWord.join("") === word) {
+                        messageBox.textContent = `Congratulations! You guessed the word: "${word}". Play again?(click the ▶️ button above to play again.)`;
+                    } else {
+                        messageBox.textContent = `Hint: ${hint}\nWord: ${guessedWord.join(" ")}\nAttempts left: ${attempts}`;
+                    }
+                } else {
+                    attempts--;
+                    if (attempts === 0) {
+                        messageBox.textContent = `Game over! The word was: "${word}". (click the ▶️ button above to play again.)`;
+                    } else {
+                        messageBox.textContent = `Hint: ${hint}\nWord: ${guessedWord.join(" ")}\nAttempts left: ${attempts}`;
+                    }
+                }
+            };
+        }
+
+        function startNumberGuess() {
+            modeButtons.style.display = "none";
+            gameSection.style.display = "block";
+            const randomNumber = Math.floor(Math.random() * 100) + 1;
+            let attempts = 10;
+
+            messageBox.textContent = `Guess the number (1-100). Attempts left: ${attempts}`;
+            currentGame = function() {
+                const guess = parseInt(userInput.value, 10);
+                userInput.value = "";
+                if (isNaN(guess)) {
+                    messageBox.textContent = "Invalid input. Please enter a number.";
+                    return;
+                }
+                if (guess === randomNumber) {
+                    messageBox.textContent = "Congratulations! You guessed the correct number. Play again?(click the ▶️ button above to play again.)";
+                } else {
+                    attempts--;
+                    if (attempts === 0) {
+                        messageBox.textContent = `Game over! The correct number was: ${randomNumber}. Play again? (click the ▶️ button above to play again.)`;
+                    } else {
+                        messageBox.textContent = guess < randomNumber
+                            ? `Too low! Attempts left: ${attempts}`
+                            : `Too high! Attempts left: ${attempts}`;
+                    }
+                }
+            };
+        }
+
+        submitGuess.addEventListener("click", () => {
+            if (currentGame) currentGame();
+        });
+    </script>
+</body>
+</html>
