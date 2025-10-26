@@ -6,25 +6,28 @@
 <title>The Game - Select Mode</title>
 <style>
   body {
-  background: url('mainbackground.png') no-repeat center center fixed;
-  background-size: cover;       /* makes the image fill the screen */
-  background-position: center;  /* keeps the image centered */
-  background-repeat: no-repeat; /* no tiling */
-  background-attachment: fixed; /* stays still while scrolling (optional) */
-  //
-  background-size: contain;
-background-color: black; /* fills empty sides with black */
-  //
-  color: #e0e0e0;
-  font-family: 'Courier New', monospace;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  text-align: center;
-  margin: 0;
-}
+    background: url('mainbackground.png') no-repeat center center fixed;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-color: black;
+    color: #e0e0e0;
+    font-family: 'Courier New', monospace;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    text-align: center;
+    margin: 0;
+    opacity: 0;
+    transition: opacity 1s ease;
+  }
+
+  body.fade-in {
+    opacity: 1;
+  }
 
   h1 {
     font-size: 2em;
@@ -39,7 +42,6 @@ background-color: black; /* fills empty sides with black */
     margin-bottom: 2em;
     letter-spacing: 1px;
     text-shadow: 0 0 6px rgba(0, 0, 0, 0.8);
-    
   }
 
   .mode-btn {
@@ -79,9 +81,48 @@ background-color: black; /* fills empty sides with black */
     font-size: 0.8em;
     color: #ffffea;
   }
+
+  /* Tap-to-start overlay */
+  #introOverlay {
+    position: fixed;
+    inset: 0;
+    background-color: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    opacity: 1;
+    transition: opacity 1s ease;
+  }
+
+  #introOverlay.fade-out {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  #introText {
+    color: white;
+    font-size: 1.5em;
+    letter-spacing: 2px;
+    font-family: 'Courier New', monospace;
+    text-align: center;
+    text-shadow: 0 0 10px #ffffff;
+    animation: pulse 1.5s infinite;
+    cursor: pointer;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
 </style>
 </head>
 <body>
+
+  <!-- Tap to Begin Overlay -->
+  <div id="introOverlay">
+    <div id="introText">tap to display menu...</div>
+  </div>
 
   <h1>The Choice Room</h1>
   <h2>Select Mode</h2>
@@ -98,21 +139,54 @@ background-color: black; /* fills empty sides with black */
 
   <footer>© 2025 The Choice Room. All rights reserved.</footer>
 
-<script>
-  function startMode(modeName) {
-    const menu = document.getElementById("menu");
-    document.body.classList.add("fade-out");
+  <audio id="bgMusic" src="bgm.mp3" loop></audio>
 
-    setTimeout(() => {
-      if (modeName === "The Chamber") {
-        window.location.href = "chamber.html"; // 🔗 links to your Choice Room file
-      } else if (modeName === "Awaken") {
-        window.location.href = "awakenIntro.html"; // (optional) add your other modes here
-      } else {
-        alert(modeName + " is not available yet."); // fallback
-      }
-    }, 800); // waits for fade-out before changing page
-  }
+<script>
+const bgMusic = document.getElementById("bgMusic");
+const introOverlay = document.getElementById("introOverlay");
+
+window.addEventListener("pageshow", () => {
+  document.body.classList.add("fade-in");
+});
+
+// When user taps to begin
+introOverlay.addEventListener("click", () => {
+  // Fade out overlay
+  introOverlay.classList.add("fade-out");
+
+  // Start music
+  bgMusic.volume = 0;
+  bgMusic.play().then(() => {
+    // Smooth fade in volume
+    let vol = 0;
+    const fade = setInterval(() => {
+      vol += 0.05;
+      if (vol > 1) vol = 1; // ✅ prevents the IndexSizeError
+      bgMusic.volume = vol;
+      if (vol >= 1) clearInterval(fade);
+    }, 100);
+  }).catch(err => console.log("Autoplay blocked:", err));
+
+  // Remove overlay completely after fade
+  setTimeout(() => {
+    introOverlay.style.display = "none";
+  }, 1000);
+});
+
+function startMode(modeName) {
+  document.body.classList.remove("fade-in");
+  document.body.classList.add("fade-out");
+
+  setTimeout(() => {
+    if (modeName === "The Chamber") {
+      window.location.href = "chamber.html";
+    } else if (modeName === "Awaken") {
+      window.location.href = "awakenIntro.html";
+    } else {
+      alert(modeName + " is not available yet.");
+    }
+  }, 800);
+}
 </script>
 
 </body>
