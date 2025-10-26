@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Project:TCR</title>
+<title>The Game - Select Mode</title>
 <style>
   body {
     background-color: #0c0c0c;
@@ -76,27 +76,15 @@
 
   <div id="menu">
     <button class="mode-btn" onclick="startMode('The Chamber')">The Chamber</button>
-    <button class="mode-btn" onclick="startMode('Voice Test')">null</button>
-    <button class="mode-btn" onclick="startMode('Mirror Trial')">null</button>
-    <button class="mode-btn" onclick="startMode('Memory Loop')">null</button>
-    <button class="mode-btn" onclick="startMode('Truth Code')">null</button>
-    <button class="mode-btn" onclick="startMode('Soul Trade')">null</button>
-    <button class="mode-btn" onclick="startMode('The Exit')">null</button>
+    <button class="mode-btn" onclick="startMode('Awaken')">Awaken</button>
+    <button class="mode-btn" onclick="startMode('Mirror Trial')">Mirror Trial</button>
+    <button class="mode-btn" onclick="startMode('Memory Loop')">Memory Loop</button>
+    <button class="mode-btn" onclick="startMode('Truth Code')">Truth Code</button>
+    <button class="mode-btn" onclick="startMode('Soul Trade')">Soul Trade</button>
+    <button class="mode-btn" onclick="startMode('The Exit')">The Exit</button>
   </div>
 
-  <footer style="
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    text-align: center;
-    padding: 8px;
-    background-color: #f9f9f9;
-    font-size: 14px;
-    color: #666;
-    border-top: 1px solid #ccc;
-  ">
-    © 2025 The Choice Room. All rights reserved.
-  </footer>
+  <footer>© 2025 The Choice Room. All rights reserved.</footer>
 
 <script>
   function startMode(modeName) {
@@ -106,8 +94,8 @@
     setTimeout(() => {
       if (modeName === "The Chamber") {
         window.location.href = "chamber.html"; // 🔗 links to your Choice Room file
-      } else if (modeName === "Voice Test") {
-        window.location.href = "voiceTest.html"; // (optional) add your other modes here
+      } else if (modeName === "Awaken") {
+        window.location.href = "awakenIntro.html"; // (optional) add your other modes here
       } else {
         alert(modeName + " is not available yet."); // fallback
       }
