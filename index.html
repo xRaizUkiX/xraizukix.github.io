@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Access Granted</title>
+    <style>
+        /* Base Reset & Variables */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        body {
+            background: radial-gradient(circle at center, #061c0f 0%, #020a05 60%, #000000 100%);
+            color: #2ed173;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        /* Subtle Background Grid Overlay */
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(0,0,0,0.5) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(0,0,0,0.5) 1px, transparent 1px);
+            background-size: 20px 20px;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        /* Terminal Container */
+        .card {
+            background: rgba(4, 18, 10, 0.85);
+            border: 1px solid #134e2a;
+            box-shadow: 0 0 30px rgba(16, 120, 58, 0.2);
+            border-radius: 8px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Interactive Input State */
+        .interactive-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        label {
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+            color: #1f9a53;
+        }
+
+        input {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #1e703d;
+            color: #3bf187;
+            padding: 12px 15px;
+            font-size: 1rem;
+            border-radius: 4px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            border-color: #2ed173;
+            box-shadow: 0 0 10px rgba(46, 209, 115, 0.3);
+        }
+
+        button {
+            background: #0f4021;
+            color: #3bf187;
+            border: 1px solid #1e703d;
+            padding: 12px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            border-radius: 4px;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #185e32;
+            border-color: #2ed173;
+            box-shadow: 0 0 12px rgba(46, 209, 115, 0.4);
+            color: #ffffff;
+        }
+
+        /* Letter Display State */
+        .letter {
+            display: none;
+            line-height: 1.8;
+            font-size: 1.05rem;
+            color: #2ed173;
+            text-shadow: 0 0 5px rgba(46, 209, 115, 0.4);
+        }
+
+        .letter p {
+            margin-bottom: 12px;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeIn 0.8s forwards;
+        }
+
+        /* Staggered text reveal */
+        .letter p:nth-child(1) { animation-delay: 0.2s; }
+        .letter p:nth-child(2) { animation-delay: 0.7s; }
+        .letter p:nth-child(3) { animation-delay: 1.2s; }
+        .letter p:nth-child(4) { animation-delay: 1.7s; }
+        .letter p:nth-child(5) { animation-delay: 2.2s; }
+        .letter p:nth-child(6) { animation-delay: 2.7s; }
+
+        .letter .highlight {
+            color: #52f89d;
+            font-weight: bold;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="grid-overlay"></div>
+
+    <div class="card">
+        <!-- Input Form (Before Access) -->
+        <div id="inputGroup" class="interactive-section">
+            <label for="userName">ENTER ACCESS CARD NAME:</label>
+            <input type="text" id="userName" placeholder="Type name here..." autocomplete="off">
+            <button onclick="revealLetter()">AUTHENTICATE</button>
+        </div>
+
+        <!-- The Letter (After Access) -->
+        <div id="letterContent" class="letter">
+            <p>ACCESS REQUEST RECEIVED.</p>
+            <p>Welcome, <span id="displayName" class="highlight"></span>.</p>
+            <p>Something has been prepared for you.</p>
+            <p>Your access has been approved.</p>
+            <p>Further information is classified.</p>
+            <p>Keep your access card.<br>You will need it.</p>
+            <br><p>—sisyphuz</p>
+        </div>
+    </div>
+
+    <script>
+        function revealLetter() {
+            const nameInput = document.getElementById('userName').value.trim();
+            if (nameInput === "") {
+                alert("Please enter a valid name to proceed.");
+                return;
+            }
+
+            // Set the dynamic name
+            document.getElementById('displayName').textContent = nameInput;
+
+            // Hide the input form and show the letter
+            document.getElementById('inputGroup').style.display = 'none';
+            document.getElementById('letterContent').style.display = 'block';
+        }
+
+        // Allow pressing 'Enter' to submit
+        document.getElementById('userName').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                revealLetter();
+            }
+        });
+    </script>
+</body>
+</html>
