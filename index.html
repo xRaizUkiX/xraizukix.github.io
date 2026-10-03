@@ -2,10 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Access Granted</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Domain of Sisyphuz v2.0</title>
     <style>
-        /* Base Reset & Variables */
+        /* ===================================================
+           AESTHETIC & THEME SETUP
+        =================================================== */
         * {
             margin: 0;
             padding: 0;
@@ -20,11 +22,12 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
-            overflow: hidden;
+            padding: 15px;
+            overflow-x: hidden;
+            position: relative;
         }
 
-        /* Subtle Background Grid Overlay */
+        /* Scanline / Grid Overlay */
         .grid-overlay {
             position: fixed;
             top: 0;
@@ -35,155 +38,503 @@
                         linear-gradient(90deg, rgba(0,0,0,0.5) 1px, transparent 1px);
             background-size: 20px 20px;
             pointer-events: none;
-            opacity: 0.3;
-        }
-
-        /* Terminal Container */
-        .card {
-            background: rgba(4, 18, 10, 0.85);
-            border: 1px solid #134e2a;
-            box-shadow: 0 0 30px rgba(16, 120, 58, 0.2);
-            border-radius: 8px;
-            padding: 40px;
-            max-width: 500px;
-            width: 100%;
-            backdrop-filter: blur(10px);
-            position: relative;
+            opacity: 0.35;
             z-index: 1;
         }
 
-        /* Interactive Input State */
-        .interactive-section {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+        .scanline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(46, 209, 115, 0.25);
+            opacity: 0.6;
+            pointer-events: none;
+            z-index: 2;
+            animation: scan 6s linear infinite;
         }
 
-        label {
-            font-size: 0.95rem;
-            letter-spacing: 1px;
-            color: #1f9a53;
+        @keyframes scan {
+            0% { top: 0%; }
+            100% { top: 100%; }
         }
 
-        input {
-            background: rgba(0, 0, 0, 0.6);
+        /* Container Card */
+        .card {
+            background: rgba(4, 18, 10, 0.95);
             border: 1px solid #1e703d;
+            box-shadow: 0 0 30px rgba(16, 120, 58, 0.25);
+            border-radius: 8px;
+            padding: 25px;
+            max-width: 520px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 5;
+            text-align: center;
+            max-height: 92vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #134e2a #040d07;
+            transition: border-color 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        .card.card-error {
+            border-color: #ff4d4d;
+            box-shadow: 0 0 35px rgba(255, 77, 77, 0.4);
+            animation: cardFlicker 0.4s ease;
+        }
+
+        @keyframes cardFlicker {
+            0%, 100% { opacity: 1; }
+            20%, 60% { opacity: 0.7; }
+            40% { opacity: 0.9; }
+        }
+
+        /* Typography */
+        .header-title {
+            font-size: 1.2rem;
+            color: #52f89d;
+            margin-bottom: 8px;
+            letter-spacing: 1.5px;
+            text-shadow: 0 0 8px rgba(82, 248, 157, 0.4);
+        }
+
+        .sub-header {
+            font-size: 0.8rem;
+            color: #1f9a53;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+
+        .terminal-panel {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px dashed #1e703d;
+            border-radius: 6px;
+            padding: 18px;
+            margin: 15px 0;
+            text-align: left;
+            line-height: 1.6;
+            font-size: 0.88rem;
             color: #3bf187;
-            padding: 12px 15px;
-            font-size: 1rem;
+        }
+
+        /* Form Inputs */
+        .input-group {
+            margin-bottom: 16px;
+            text-align: left;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 0.78rem;
+            color: #1f9a53;
+            margin-bottom: 6px;
+            letter-spacing: 1px;
+        }
+
+        .terminal-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid #1e703d;
+            color: #52f89d;
+            padding: 12px;
+            font-size: 0.95rem;
             border-radius: 4px;
             outline: none;
             transition: all 0.3s ease;
         }
 
-        input:focus {
+        .terminal-input:focus {
             border-color: #2ed173;
             box-shadow: 0 0 10px rgba(46, 209, 115, 0.3);
+            background: rgba(2, 15, 7, 0.9);
         }
 
+        .terminal-input.input-error {
+            border-color: #ff4d4d !important;
+            color: #ff6b6b;
+            box-shadow: 0 0 10px rgba(255, 77, 77, 0.3);
+        }
+
+        /* Buttons */
         button {
             background: #0f4021;
             color: #3bf187;
             border: 1px solid #1e703d;
-            padding: 12px;
-            font-size: 0.95rem;
+            padding: 13px 22px;
+            font-size: 0.88rem;
             cursor: pointer;
             border-radius: 4px;
             letter-spacing: 1px;
-            transition: all 0.3s ease;
+            transition: all 0.25s ease;
             font-weight: bold;
+            width: 100%;
+            margin-top: 10px;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        button:hover {
+        button:hover:not(:disabled) {
             background: #185e32;
             border-color: #2ed173;
             box-shadow: 0 0 12px rgba(46, 209, 115, 0.4);
             color: #ffffff;
         }
 
-        /* Letter Display State */
-        .letter {
-            display: none;
-            line-height: 1.8;
-            font-size: 1.05rem;
-            color: #2ed173;
-            text-shadow: 0 0 5px rgba(46, 209, 115, 0.4);
+        button:active:not(:disabled) {
+            transform: scale(0.98);
         }
 
-        .letter p {
-            margin-bottom: 12px;
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Error Box */
+        .error-container {
+            background: rgba(40, 10, 10, 0.85);
+            border: 1px solid #ff4d4d;
+            border-radius: 6px;
+            padding: 14px;
+            margin: 15px 0;
+            text-align: left;
+            font-size: 0.82rem;
+            color: #ff6b6b;
+            line-height: 1.5;
+            display: none;
+        }
+
+        .error-container.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Key Icon Section */
+        .key-wrapper {
+            margin: 25px 0 15px 0;
+            display: inline-block;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .key-wrapper:hover {
+            transform: scale(1.08);
+        }
+
+        .key-icon {
+            font-size: 3.2rem;
+            filter: drop-shadow(0 0 12px rgba(82, 248, 157, 0.6));
+            user-select: none;
+            display: block;
+        }
+
+        /* Phase Control */
+        .phase {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .phase.hidden {
+            display: none !important;
             opacity: 0;
             transform: translateY(10px);
-            animation: fadeIn 0.8s forwards;
+            pointer-events: none;
         }
 
-        /* Staggered text reveal */
-        .letter p:nth-child(1) { animation-delay: 0.2s; }
-        .letter p:nth-child(2) { animation-delay: 0.7s; }
-        .letter p:nth-child(3) { animation-delay: 1.2s; }
-        .letter p:nth-child(4) { animation-delay: 1.7s; }
-        .letter p:nth-child(5) { animation-delay: 2.2s; }
-        .letter p:nth-child(6) { animation-delay: 2.7s; }
+        .phase.fade-out {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
 
-        .letter .highlight {
-            color: #52f89d;
-            font-weight: bold;
+        /* Terminal Cursor */
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 15px;
+            background-color: #2ed173;
+            margin-left: 3px;
+            vertical-align: middle;
+            animation: blink 0.9s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
         }
 
         @keyframes fadeIn {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Mobile Fixes */
+        @media (max-width: 480px) {
+            .card { padding: 18px; }
+            .header-title { font-size: 1.05rem; }
+            .terminal-panel { font-size: 0.82rem; padding: 14px; }
+            .key-icon { font-size: 2.8rem; }
         }
     </style>
 </head>
 <body>
 
     <div class="grid-overlay"></div>
+    <div class="scanline"></div>
 
-    <div class="card">
-        <!-- Input Form (Before Access) -->
-        <div id="inputGroup" class="interactive-section">
-            <label for="userName">ENTER ACCESS CARD NAME:</label>
-            <input type="text" id="userName" placeholder="Type name here..." autocomplete="off">
-            <button onclick="revealLetter()">AUTHENTICATE</button>
+    <div class="card" id="terminalCard">
+
+        <!-- ===================================================
+             PHASE 1: IDENTITY + ACCESS KEY VERIFICATION
+        =================================================== -->
+        <div id="phase1" class="phase">
+            <h1 class="header-title">// DOMAIN OF SISYPHUZ v2.0 //</h1>
+            <div class="sub-header">SECURITY CHECKPOINT &bull; AUTHENTICATION</div>
+
+            <div class="input-group">
+                <label class="input-label" for="inputName">ACCESS CARD NAME:</label>
+                <input type="text" id="inputName" class="terminal-input" placeholder="Enter authorized name..." autocomplete="off" spellcheck="false">
+            </div>
+
+            <div class="input-group">
+                <label class="input-label" for="inputKey">ACCESS KEY:</label>
+                <input type="text" id="inputKey" class="terminal-input" placeholder="e.g. 20-XXXX..." autocomplete="off" spellcheck="false">
+            </div>
+
+            <!-- Terminal Error Output Container -->
+            <div id="errorContainer" class="error-container">
+                <div style="font-weight: bold; margin-bottom: 4px;">&gt; ACCESS DENIED</div>
+                <div style="margin-bottom: 6px;">IDENTITY VERIFICATION FAILED. INVALID CREDENTIALS DETECTED.</div>
+                <div id="errorPlayfulNote" style="color: #ff8888; font-style: italic;">&gt; The system knows who is authorized. 😏</div>
+            </div>
+
+            <button id="btnAuthenticate" onclick="submitAuthentication()">[ AUTHENTICATE ]</button>
         </div>
 
-        <!-- The Letter (After Access) -->
-        <div id="letterContent" class="letter">
-            <p>ACCESS REQUEST RECEIVED.</p>
-            <p>Welcome, <span id="displayName" class="highlight"></span>.</p>
-            <p>Something has been prepared for you.</p>
-            <p>Your access has been approved.</p>
-            <p>Further information is classified.</p>
-            <p>Keep your access card.<br>You will need it.</p>
-            <br><p>—sisyphuz</p>
+        <!-- ===================================================
+             BOOT SEQUENCE TRANSITION LOG CONSOLE
+        =================================================== -->
+        <div id="phaseBoot" class="phase hidden">
+            <h1 class="header-title">// AUTHENTICATING //</h1>
+            <div class="terminal-panel" style="min-height: 180px;">
+                <div id="bootLogs"></div>
+                <span class="cursor"></span>
+            </div>
         </div>
+
+        <!-- ===================================================
+             PHASE 2: PERSONALIZED LETTER / ACCESS APPROVED
+        =================================================== -->
+        <div id="phase2" class="phase hidden">
+            <h1 class="header-title">ACCESS REQUEST RECEIVED</h1>
+            <div class="sub-header" id="welcomeUserHeader">WELCOME, AGENT.</div>
+
+            <div class="terminal-panel">
+                <p style="margin-bottom: 10px;">Your identity has been verified.</p>
+                <p style="margin-bottom: 10px;">Your physical access key has been authenticated.</p>
+                <p style="margin-bottom: 10px; color: #52f89d;">Something has been prepared specifically for you.</p>
+                <p style="margin-bottom: 10px;">Further information remains classified.</p>
+                <p>Keep your access card.<br>You will need it.</p>
+            </div>
+
+            <div class="key-wrapper" id="keyBtn" onclick="claimProtocolAccess()">
+                <span class="key-icon">&#128477;&#65039;</span>
+            </div>
+            
+            <div style="font-size: 0.8rem; color: #52f89d; letter-spacing: 1px; margin-bottom: 15px;">
+                [ TAP KEY TO CLAIM GIFT BOXES ]
+            </div>
+        </div>
+
     </div>
 
+    <!-- Audio Integration -->
+    <script src="audio.js"></script>
     <script>
-        function revealLetter() {
-            const nameInput = document.getElementById('userName').value.trim();
-            if (nameInput === "") {
-                alert("Please enter a valid name to proceed.");
-                return;
-            }
+        /* ===================================================
+           EASY CONFIGURATION SECTION (EDIT VALUES BELOW)
+        =================================================== */
+        const CONFIG = {
+            // Authorized name (Case-insensitive & ignores extra spaces)
+            accessName: "ANIKA",
+            
+            // Exact digital key corresponding to her physical card
+            accessKey: "20-1006",
+            
+            // Redirect destination after key activation
+            protocolArenaPage: "games.html"
+        };
 
-            // Set the dynamic name
-            document.getElementById('displayName').textContent = nameInput;
+        /* ===================================================
+           PLAYFUL ERROR VARIATIONS
+        =================================================== */
+        const PLAYFUL_ERRORS = [
+            "> Nice try. 😏",
+            "> The system knows who is authorized.",
+            "> Access Card mismatch. Double-check your physical key!",
+            "> Incorrect key format. Verify credentials."
+        ];
 
-            // Hide the input form and show the letter
-            document.getElementById('inputGroup').style.display = 'none';
-            document.getElementById('letterContent').style.display = 'block';
-        }
+        let isProcessing = false;
 
-        // Allow pressing 'Enter' to submit
-        document.getElementById('userName').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                revealLetter();
+        /* Auto Check Session on Load */
+        window.addEventListener('DOMContentLoaded', () => {
+            const authStatus = sessionStorage.getItem("birthdayAuthenticated");
+            const savedName = sessionStorage.getItem("authenticatedUserName");
+
+            if (authStatus === "true") {
+                // User already verified during this session -> Jump directly to Phase 2
+                showPhase2(savedName || CONFIG.accessName);
             }
         });
+
+        /* ===================================================
+           PHASE 1: AUTHENTICATION VALIDATION
+        =================================================== */
+        function submitAuthentication() {
+            if (isProcessing) return;
+
+            const nameInput = document.getElementById('inputName');
+            const keyInput = document.getElementById('inputKey');
+            const cardEl = document.getElementById('terminalCard');
+            const errorBox = document.getElementById('errorContainer');
+            const playfulNote = document.getElementById('errorPlayfulNote');
+
+            // Reset errors
+            nameInput.classList.remove('input-error');
+            keyInput.classList.remove('input-error');
+            cardEl.classList.remove('card-error');
+            errorBox.classList.remove('active');
+
+            // Sanitize input values
+            const enteredNameClean = nameInput.value.trim().toLowerCase();
+            const targetNameClean = CONFIG.accessName.trim().toLowerCase();
+
+            const enteredKeyClean = keyInput.value.trim();
+            const targetKeyClean = CONFIG.accessKey.trim();
+
+            const isNameValid = (enteredNameClean === targetNameClean);
+            const isKeyValid = (enteredKeyClean === targetKeyClean);
+
+            if (typeof playClickSound === 'function') playClickSound();
+
+            if (isNameValid && isKeyValid) {
+                // SUCCESS
+                sessionStorage.setItem("birthdayAuthenticated", "true");
+                sessionStorage.setItem("authenticatedUserName", nameInput.value.trim());
+                startBootSequence(nameInput.value.trim());
+            } else {
+                // FAILURE
+                if (!isNameValid) nameInput.classList.add('input-error');
+                if (!isKeyValid) keyInput.classList.add('input-error');
+
+                cardEl.classList.add('card-error');
+                
+                // Pick random playful error
+                const randomMsg = PLAYFUL_ERRORS[Math.floor(Math.random() * PLAYFUL_ERRORS.length)];
+                playfulNote.innerText = randomMsg;
+                errorBox.classList.add('active');
+            }
+        }
+
+        /* Allow pressing Enter to submit */
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const phase1 = document.getElementById('phase1');
+                if (!phase1.classList.contains('hidden')) {
+                    submitAuthentication();
+                }
+            }
+        });
+
+        /* ===================================================
+           BOOT SEQUENCE ANIMATION
+        =================================================== */
+        function startBootSequence(userName) {
+            isProcessing = true;
+            switchPhase('phase1', 'phaseBoot', 500, () => {
+                const container = document.getElementById('bootLogs');
+                const logs = [
+                    "AUTHENTICATING...",
+                    "IDENTITY VERIFIED &#10003;",
+                    "ACCESS KEY VERIFIED &#10003;",
+                    "SECURITY NODE 01 ........ COMPLETE",
+                    "SECURITY NODE 02 ........ COMPLETE",
+                    "SECURITY NODE 03 ........ COMPLETE",
+                    "--------------------------------",
+                    "<strong style='color:#52f89d;'>ACCESS GRANTED.</strong>",
+                    `WELCOME, ${userName.toUpperCase()}.`
+                ];
+
+                let step = 0;
+                const interval = setInterval(() => {
+                    const line = document.createElement('div');
+                    line.style.marginBottom = '5px';
+                    line.style.fontSize = '0.85rem';
+                    line.innerHTML = logs[step];
+                    container.appendChild(line);
+                    step++;
+
+                    if (step >= logs.length) {
+                        clearInterval(interval);
+                        setTimeout(() => {
+                            switchPhase('phaseBoot', 'phase2', 500, () => {
+                                isProcessing = false;
+                                setWelcomeMessage(userName);
+                            });
+                        }, 1200);
+                    }
+                }, 350);
+            });
+        }
+
+        function setWelcomeMessage(userName) {
+            const welcomeHeader = document.getElementById('welcomeUserHeader');
+            welcomeHeader.innerText = `WELCOME, ${userName.toUpperCase()}.`;
+        }
+
+        function showPhase2(userName) {
+            document.getElementById('phase1').classList.add('hidden');
+            document.getElementById('phase2').classList.remove('hidden');
+            setWelcomeMessage(userName);
+        }
+
+        /* ===================================================
+           PHASE 2: CLAIM KEY & TRANSITION TO ARENA
+        =================================================== */
+        function claimProtocolAccess() {
+            if (isProcessing) return;
+            isProcessing = true;
+            if (typeof playClickSound === 'function') playClickSound();
+
+            const keyBtn = document.getElementById('keyBtn');
+            keyBtn.style.transform = 'scale(1.2)';
+            keyBtn.style.opacity = '0.5';
+
+            setTimeout(() => {
+                window.location.href = CONFIG.protocolArenaPage;
+            }, 600);
+        }
+
+        /* Phase Transition Helper */
+        function switchPhase(currentPhaseId, nextPhaseId, delay = 500, callback = null) {
+            const currentEl = document.getElementById(currentPhaseId);
+            const nextEl = document.getElementById(nextPhaseId);
+
+            currentEl.classList.add('fade-out');
+
+            setTimeout(() => {
+                currentEl.classList.add('hidden');
+                currentEl.classList.remove('fade-out');
+
+                nextEl.classList.remove('hidden');
+                void nextEl.offsetWidth; // Trigger layout reflow
+                
+                if (callback) callback();
+            }, delay);
+        }
     </script>
 </body>
 </html>
