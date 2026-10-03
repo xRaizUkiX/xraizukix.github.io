@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+    <script>
+    // Navigation Guard Check
+    (function checkSecurityCheckpoint() {
+        const isAuth = sessionStorage.getItem("birthdayAuthenticated");
+        if (isAuth !== "true") {
+            // Redirect unauthorized users back to verification checkpoint
+            window.location.href = "index.html";
+        }
+    })();
+</script>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protocol Arena - Gift Selection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        body {
+            background: radial-gradient(circle at center, #061c0f 0%, #020a05 60%, #000000 100%);
+            color: #2ed173;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(0,0,0,0.5) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(0,0,0,0.5) 1px, transparent 1px);
+            background-size: 20px 20px;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        .card {
+            background: rgba(4, 18, 10, 0.92);
+            border: 1px solid #134e2a;
+            box-shadow: 0 0 30px rgba(16, 120, 58, 0.2);
+            border-radius: 8px;
+            padding: 25px;
+            max-width: 550px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+
+        button {
+            background: #0f4021;
+            color: #3bf187;
+            border: 1px solid #1e703d;
+            padding: 12px 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border-radius: 4px;
+            letter-spacing: 1px;
+            transition: all 0.25s ease;
+            font-weight: bold;
+            margin: 4px;
+            user-select: none;
+        }
+
+        button:hover {
+            background: #185e32;
+            border-color: #2ed173;
+            box-shadow: 0 0 12px rgba(46, 209, 115, 0.4);
+            color: #ffffff;
+        }
+
+        button:active {
+            transform: scale(0.97);
+        }
+
+        .hidden { display: none !important; }
+
+        .game-title {
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+            color: #52f89d;
+            letter-spacing: 1px;
+        }
+
+        /* 20 Boxes Visual Tracker Grid */
+        .grid-container {
+            margin: 15px 0;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid #134e2a;
+            padding: 12px;
+            border-radius: 6px;
+        }
+
+        .grid-title {
+            font-size: 0.75rem;
+            color: #1f9a53;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        .box-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+        }
+
+        .box-slot {
+            aspect-ratio: 1;
+            background: #092a15;
+            border: 1px solid #1e703d;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #3bf187;
+            transition: all 0.3s;
+        }
+
+        .box-slot.claimed {
+            background: #040d07;
+            border-color: #0b2213;
+            color: #134e2a;
+            text-decoration: line-through;
+            opacity: 0.4;
+        }
+
+        .status-box {
+            margin: 12px 0;
+            padding: 10px;
+            border: 1px dashed #1e703d;
+            min-height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #3bf187;
+            font-size: 0.88rem;
+        }
+
+        /* MEMORY MATRIX GRID */
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            max-width: 220px;
+            margin: 15px auto;
+        }
+
+        .matrix-cell {
+            aspect-ratio: 1;
+            background: #092a15;
+            border: 1px solid #1e703d;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+
+        .matrix-cell.active {
+            background: #52f89d;
+            box-shadow: 0 0 15px #52f89d;
+        }
+
+        /* FREQUENCY MATCHER BAR */
+        .freq-container {
+            width: 100%;
+            height: 35px;
+            background: #040d07;
+            border: 1px solid #1e703d;
+            position: relative;
+            margin: 15px 0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .freq-target {
+            position: absolute;
+            left: 40%;
+            width: 20%;
+            height: 100%;
+            background: rgba(82, 248, 157, 0.3);
+            border-left: 2px solid #52f89d;
+            border-right: 2px solid #52f89d;
+        }
+
+        .freq-cursor {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 10px;
+            height: 100%;
+            background: #52f89d;
+            box-shadow: 0 0 10px #52f89d;
+        }
+
+        /* CANVAS STYLING FOR DODGE & CLAW GAMES */
+        .game-canvas-container {
+            position: relative;
+            width: 100%;
+            max-width: 320px;
+            height: 220px;
+            margin: 12px auto;
+            border: 1px solid #1e703d;
+            background: #020b05;
+            overflow: hidden;
+            border-radius: 4px;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .dodge-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        /* TENSION HOLD BAR & BUTTON */
+        .tension-meter-outer {
+            width: 100%;
+            height: 28px;
+            background: #040d07;
+            border: 1px solid #1e703d;
+            border-radius: 4px;
+            position: relative;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .tension-target-zone {
+            position: absolute;
+            left: 40%;
+            width: 40%;
+            height: 100%;
+            background: rgba(82, 248, 157, 0.25);
+            border-left: 1px solid #52f89d;
+            border-right: 1px solid #52f89d;
+        }
+
+        .tension-fill {
+            height: 100%;
+            width: 50%;
+            background: #52f89d;
+            transition: width 0.08s ease-out, background-color 0.2s;
+            box-shadow: 0 0 10px #52f89d;
+        }
+
+        .tap-action-btn {
+            padding: 20px 30px;
+            font-size: 1.1rem;
+            background: #185e32;
+            border-color: #52f89d;
+            width: 85%;
+        }
+
+        /* OPERATOR MODE STYLING */
+        .operator-panel {
+            background: rgba(20, 5, 5, 0.6);
+            border: 1px solid #8b0000;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+        }
+
+        .op-btn {
+            background: #5a0909;
+            color: #ff7777;
+            border-color: #a81c1c;
+        }
+
+        .op-btn:hover {
+            background: #831010;
+            border-color: #ff4444;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="grid-overlay"></div>
+
+    <div class="card">
+        <!-- MODE SELECTION MENU -->
+        <div id="modeSelectScreen">
+            <div class="game-title">SELECT DRAW PROTOCOL</div>
+            <p style="margin-bottom: 12px; font-size: 0.8rem; color: #1f9a53;">Beat a protocol challenge to draw a Gift Box (1-20).</p>
+            <div style="display: flex; flex-direction: column; gap: 4px; align-items: center;">
+                <button onclick="startMemoryGame()" style="width: 85%;">1. MEMORY MATRIX</button>
+                <button onclick="startFreqGame()" style="width: 85%;">2. FREQUENCY SYNC</button>
+                <button onclick="startDodgeGame()" style="width: 85%;">3. FIREWALL EVASION (DODGE)</button>
+                <button onclick="startClawGame()" style="width: 85%;">4. CYBER CLAW GRAB</button>
+                <button onclick="startTensionGame()" style="width: 85%;">5. TENSION HOLD (10S ROPE)</button>
+                <button onclick="startOperatorGame()" style="width: 85%; border-color: #8b0000; color: #ff8888; background: #2b0808; margin-top: 5px;">6. OPERATOR CHALLENGE</button>
+            </div>
+
+            <!-- 20 BOX TRACKER GRID -->
+            <div class="grid-container">
+                <div class="grid-title">GIFT INVENTORY STATUS (1 - 20)</div>
+                <div class="box-grid" id="boxGrid"></div>
+            </div>
+
+            <button onclick="window.location.href='index.html'" style="font-size: 0.8rem; background: transparent; border-color: #134e2a;">&larr; BACK TO LETTER</button>
+            <button onclick="resetBoxes()" style="font-size: 0.75rem; background: transparent; border-color: #0b2213; color: #1f9a53; margin-top: 5px;">[ RESET INVENTORY ]</button>
+        </div>
+
+        <!-- GAME 1: MEMORY MATRIX -->
+        <div id="memoryScreen" class="hidden">
+            <div class="game-title">PROTOCOL: MEMORY MATRIX</div>
+            <div id="memoryStatus" class="status-box">Memorize the glowing sequence...</div>
+            <div class="memory-grid">
+                <div class="matrix-cell" onclick="handleMatrixClick(0)"></div>
+                <div class="matrix-cell" onclick="handleMatrixClick(1)"></div>
+                <div class="matrix-cell" onclick="handleMatrixClick(2)"></div>
+                <div class="matrix-cell" onclick="handleMatrixClick(3)"></div>
+                <div class="matrix-cell" onclick="handleMatrixClick(4)"></div>
+                <div class="matrix-cell" onclick="handleMatrixClick(5)"></div>
+                <div class="matrix-cell" onclick="handleMatrixClick(6)"></div>
+                <div class="matrix-cell" onclick="handleMatrixClick(7)"></div>
+                <div class="matrix-cell" onclick="handleMatrixClick(8)"></div>
+            </div>
+            <button id="startMemBtn" onclick="playMemorySequence()">START PATTERN</button>
+            <button onclick="backToMenu()" style="font-size: 0.8rem; background: transparent; border-color: #134e2a;">&larr; BACK</button>
+        </div>
+
+        <!-- GAME 2: FREQUENCY MATCHER -->
+        <div id="freqScreen" class="hidden">
+            <div class="game-title">PROTOCOL: FREQUENCY SYNC</div>
+            <div id="freqStatus" class="status-box">Tap 'LOCK FREQUENCY' inside target zone!</div>
+            <div class="freq-container">
+                <div class="freq-target"></div>
+                <div class="freq-cursor" id="freqCursor"></div>
+            </div>
+            <button onclick="checkFreqSync()">LOCK FREQUENCY</button>
+            <br>
+            <button onclick="backToMenu()" style="font-size: 0.8rem; background: transparent; border-color: #134e2a; margin-top: 10px;">&larr; BACK</button>
+        </div>
+
+        <!-- GAME 3: FIREWALL EVASION (SLOWED DOWN) -->
+        <div id="dodgeScreen" class="hidden">
+            <div class="game-title">PROTOCOL: FIREWALL EVASION</div>
+            <div id="dodgeStatus" class="status-box">Dodge falling red nodes for 10 seconds!</div>
+            
+            <div class="game-canvas-container">
+                <canvas id="dodgeCanvas" width="320" height="220"></canvas>
+            </div>
+
+            <div class="dodge-controls">
+                <button onclick="movePlayerLeft()" style="padding: 12px 25px;">&larr; LEFT</button>
+                <button onclick="movePlayerRight()" style="padding: 12px 25px;">RIGHT &rarr;</button>
+            </div>
+
+            <button onclick="backToMenu()" style="font-size: 0.8rem; background: transparent; border-color: #134e2a; margin-top: 12px;">&larr; BACK</button>
+        </div>
+
+        <!-- GAME 4: CYBER CLAW GRAB -->
+        <div id="clawScreen" class="hidden">
+            <div class="game-title">PROTOCOL: CYBER CLAW GRAB</div>
+            <div id="clawStatus" class="status-box">Attempts Left: 3 | Lower claw past obstacles!</div>
+
+            <div class="game-canvas-container">
+                <canvas id="clawCanvas" width="320" height="220"></canvas>
+            </div>
+
+            <button onclick="dropClaw()" style="padding: 12px 30px; font-size: 1rem;">[ LOWER CLAW ]</button>
+            <br>
+            <button onclick="backToMenu()" style="font-size: 0.8rem; background: transparent; border-color: #134e2a; margin-top: 10px;">&larr; BACK</button>
+        </div>
+
+        <!-- GAME 5: TENSION HOLD (10S ROPE CATCH) -->
+        <div id="tensionScreen" class="hidden">
+            <div class="game-title">PROTOCOL: TENSION HOLD</div>
+            <div id="tensionStatus" class="status-box">Tap rapidly to keep tension in GREEN ZONE for 10s!</div>
+
+            <div style="font-size: 0.8rem; color: #1f9a53; margin-top: 5px;">TIME REMAINING: <span id="tensionTimer" style="color: #52f89d; font-weight: bold;">10.0</span>s</div>
+            
+            <div class="tension-meter-outer">
+                <div class="tension-target-zone"></div>
+                <div class="tension-fill" id="tensionFill"></div>
+            </div>
+
+            <button class="tap-action-btn" onclick="pulseTension()">[ TAP TO WINCH ]</button>
+            <br>
+            <button onclick="backToMenu()" style="font-size: 0.8rem; background: transparent; border-color: #134e2a; margin-top: 12px;">&larr; BACK</button>
+        </div>
+
+        <!-- GAME 6: OPERATOR CHALLENGE -->
+        <div id="operatorScreen" class="hidden">
+            <div class="game-title" style="color: #ff6666;">[ SPECIAL PROTOCOL: OPERATOR CHALLENGE ]</div>
+            <div class="status-box" style="border-color: #8b0000; color: #ffaaaa;">
+                Challenge the Operator in real life according to their rule!
+            </div>
+            <p style="font-size: 0.8rem; color: #1f9a53; margin: 12px 0;">
+                Once the Operator confirms you have passed the challenge, authorize access below:
+            </p>
+
+            <div class="operator-panel">
+                <div style="font-size: 0.75rem; color: #ff7777; margin-bottom: 8px;">// OPERATOR CONTROL PANEL ONLY //</div>
+                <button class="op-btn" onclick="operatorApprove()">[ OPERATOR APPROVAL: GRANT BOX ]</button>
+                <button class="op-btn" onclick="operatorReject()" style="font-size: 0.8rem; background: transparent;">[ REJECT ]</button>
+            </div>
+
+            <button onclick="backToMenu()" style="font-size: 0.8rem; background: transparent; border-color: #134e2a; margin-top: 12px;">&larr; BACK</button>
+        </div>
+    </div>
+
+    <script src="audio.js"></script>
+    <script>
+        function getAvailableNumbers() {
+            const saved = localStorage.getItem('availableBoxes');
+            if (saved) return JSON.parse(saved);
+            return Array.from({length: 20}, (_, i) => i + 1);
+        }
+
+        function saveAvailableNumbers(arr) {
+            localStorage.setItem('availableBoxes', JSON.stringify(arr));
+        }
+
+        function renderGrid() {
+            const available = getAvailableNumbers();
+            const gridEl = document.getElementById('boxGrid');
+            gridEl.innerHTML = '';
+            
+            for (let i = 1; i <= 20; i++) {
+                const box = document.createElement('div');
+                box.className = 'box-slot' + (available.includes(i) ? '' : ' claimed');
+                box.textContent = `#${i}`;
+                gridEl.appendChild(box);
+            }
+        }
+
+        function drawRandomNumber() {
+    let available = getAvailableNumbers();
+    
+    // Check if user has unboxed everything
+    if (available.length === 0) {
+        window.location.href = 'finish.html';
+        return null;
+    }
+    
+    const randomIndex = Math.floor(Math.random() * available.length);
+    const pickedNumber = available.splice(randomIndex, 1)[0];
+    saveAvailableNumbers(available);
+    renderGrid();
+    
+    // If that was the last box (0 left), redirect to victory screen
+    if (available.length === 0) {
+        setTimeout(() => {
+            window.location.href = 'finish.html';
+        }, 1500);
+    }
+    
+    return pickedNumber;
+}
+
+
+        function resetBoxes() {
+            if (confirm("Reset all 20 gift box statuses?")) {
+                playClickSound();
+                localStorage.removeItem('availableBoxes');
+                renderGrid();
+            }
+        }
+
+        function backToMenu() {
+            playClickSound();
+            stopFreqAnimation();
+            stopDodgeGame();
+            stopClawGame();
+            stopTensionGame();
+
+            document.getElementById('memoryScreen').classList.add('hidden');
+            document.getElementById('freqScreen').classList.add('hidden');
+            document.getElementById('dodgeScreen').classList.add('hidden');
+            document.getElementById('clawScreen').classList.add('hidden');
+            document.getElementById('tensionScreen').classList.add('hidden');
+            document.getElementById('operatorScreen').classList.add('hidden');
+            document.getElementById('modeSelectScreen').classList.remove('hidden');
+        }
+
+        function goToUnbox(num) {
+            sessionStorage.setItem('drawnBox', num);
+            window.location.href = 'unbox.html';
+        }
+
+        /* ===================================================
+           GAME 1: MEMORY MATRIX
+        =================================================== */
+        let sequence = [];
+        let playerSequence = [];
+        let isDisplaying = false;
+
+        function startMemoryGame() {
+            playClickSound();
+            document.getElementById('modeSelectScreen').classList.add('hidden');
+            document.getElementById('memoryScreen').classList.remove('hidden');
+            document.getElementById('memoryStatus').textContent = "Tap 'START PATTERN' to begin.";
+            document.getElementById('startMemBtn').style.display = 'inline-block';
+        }
+
+        function playMemorySequence() {
+            playClickSound();
+            document.getElementById('startMemBtn').style.display = 'none';
+            sequence = [];
+            playerSequence = [];
+            
+            for (let i = 0; i < 4; i++) {
+                sequence.push(Math.floor(Math.random() * 9));
+            }
+
+            isDisplaying = true;
+            document.getElementById('memoryStatus').textContent = "MEMORIZE PATTERN...";
+            
+            const cells = document.querySelectorAll('.matrix-cell');
+            sequence.forEach((index, step) => {
+                setTimeout(() => {
+                    playTickSound();
+                    cells[index].classList.add('active');
+                    setTimeout(() => cells[index].classList.remove('active'), 400);
+                }, (step + 1) * 700);
+            });
+
+            setTimeout(() => {
+                isDisplaying = false;
+                document.getElementById('memoryStatus').textContent = "REPEAT THE PATTERN!";
+            }, (sequence.length + 1) * 700);
+        }
+
+        function handleMatrixClick(index) {
+            if (isDisplaying || sequence.length === 0) return;
+            playClickSound();
+            
+            const cells = document.querySelectorAll('.matrix-cell');
+            cells[index].classList.add('active');
+            setTimeout(() => cells[index].classList.remove('active'), 200);
+
+            playerSequence.push(index);
+
+            const currentStep = playerSequence.length - 1;
+            if (playerSequence[currentStep] !== sequence[currentStep]) {
+                document.getElementById('memoryStatus').textContent = "ACCESS DENIED! Wrong Pattern. Retry.";
+                document.getElementById('startMemBtn').style.display = 'inline-block';
+                sequence = [];
+                return;
+            }
+
+            if (playerSequence.length === sequence.length) {
+                document.getElementById('memoryStatus').textContent = "ACCESS GRANTED! Preparing Box...";
+                setTimeout(() => {
+                    const num = drawRandomNumber();
+                    goToUnbox(num);
+                }, 1000);
+            }
+        }
+
+        /* ===================================================
+           GAME 2: FREQUENCY MATCHER
+        =================================================== */
+        let freqPos = 0;
+        let freqDirection = 1;
+        let freqInterval = null;
+
+        function startFreqGame() {
+            playClickSound();
+            document.getElementById('modeSelectScreen').classList.add('hidden');
+            document.getElementById('freqScreen').classList.remove('hidden');
+            document.getElementById('freqStatus').textContent = "Tap 'LOCK FREQUENCY' inside target zone!";
+            
+            freqPos = 0;
+            freqDirection = 1;
+            const cursor = document.getElementById('freqCursor');
+            
+            freqInterval = setInterval(() => {
+                freqPos += freqDirection * 2.2;
+                if (freqPos >= 95) freqDirection = -1;
+                if (freqPos <= 0) freqDirection = 1;
+                cursor.style.left = freqPos + '%';
+            }, 20);
+        }
+
+        function stopFreqAnimation() {
+            if (freqInterval) clearInterval(freqInterval);
+        }
+
+        function checkFreqSync() {
+            playClickSound();
+            stopFreqAnimation();
+
+            if (freqPos >= 38 && freqPos <= 60) {
+                document.getElementById('freqStatus').textContent = "FREQUENCY LOCKED! Access Granted!";
+                setTimeout(() => {
+                    const num = drawRandomNumber();
+                    goToUnbox(num);
+                }, 1000);
+            } else {
+                document.getElementById('freqStatus').textContent = "SYNC FAILED! Out of range. Retrying...";
+                setTimeout(startFreqGame, 1500);
+            }
+        }
+
+        /* ===================================================
+           GAME 3: FIREWALL EVASION (SLOWED DOWN & EASIER)
+        =================================================== */
+        let dodgeCanvas, dodgeCtx;
+        let dodgeLoop = null;
+        let playerX = 140;
+        let obstacles = [];
+        let dodgeTimeLeft = 10;
+        let dodgeTimerInterval = null;
+        let isDodgeActive = false;
+
+        function startDodgeGame() {
+            playClickSound();
+            document.getElementById('modeSelectScreen').classList.add('hidden');
+            document.getElementById('dodgeScreen').classList.remove('hidden');
+            
+            dodgeCanvas = document.getElementById('dodgeCanvas');
+            dodgeCtx = dodgeCanvas.getContext('2d');
+            
+            playerX = 140;
+            obstacles = [];
+            dodgeTimeLeft = 10;
+            isDodgeActive = true;
+
+            document.getElementById('dodgeStatus').textContent = `SURVIVE TIME: ${dodgeTimeLeft}s`;
+
+            clearInterval(dodgeTimerInterval);
+            dodgeTimerInterval = setInterval(() => {
+                if (!isDodgeActive) return;
+                dodgeTimeLeft--;
+                document.getElementById('dodgeStatus').textContent = `SURVIVE TIME: ${dodgeTimeLeft}s`;
+                if (dodgeTimeLeft <= 0) {
+                    winDodgeGame();
+                }
+            }, 1000);
+
+            cancelAnimationFrame(dodgeLoop);
+            updateDodgeGame();
+        }
+
+        function stopDodgeGame() {
+            isDodgeActive = false;
+            clearInterval(dodgeTimerInterval);
+            cancelAnimationFrame(dodgeLoop);
+        }
+
+        function movePlayerLeft() {
+            if (playerX > 10) playerX -= 40;
+        }
+
+        function movePlayerRight() {
+            if (playerX < 270) playerX += 40;
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (isDodgeActive) {
+                if (e.key === 'ArrowLeft') movePlayerLeft();
+                if (e.key === 'ArrowRight') movePlayerRight();
+            }
+            if (isClawActive && e.key === ' ') {
+                dropClaw();
+            }
+            if (isTensionActive && e.key === ' ') {
+                pulseTension();
+            }
+        });
+
+        function updateDodgeGame() {
+            if (!isDodgeActive) return;
+
+            dodgeCtx.clearRect(0, 0, dodgeCanvas.width, dodgeCanvas.height);
+
+            // Reduced spawn rate for manageable pace
+            if (Math.random() < 0.045) {
+                obstacles.push({
+                    x: Math.random() * (dodgeCanvas.width - 35),
+                    y: -20,
+                    width: 32,
+                    height: 14,
+                    speed: 1.8 + Math.random() * 1.0 // Slower falling speed
+                });
+            }
+
+            // Draw player agent node
+            dodgeCtx.fillStyle = '#52f89d';
+            dodgeCtx.shadowBlur = 8;
+            dodgeCtx.shadowColor = '#52f89d';
+            dodgeCtx.fillRect(playerX, 190, 40, 18);
+            dodgeCtx.shadowBlur = 0;
+
+            // Update & Render Firewalls
+            for (let i = 0; i < obstacles.length; i++) {
+                let obs = obstacles[i];
+                obs.y += obs.speed;
+
+                dodgeCtx.fillStyle = '#ff4444';
+                dodgeCtx.shadowBlur = 6;
+                dodgeCtx.shadowColor = '#ff4444';
+                dodgeCtx.fillRect(obs.x, obs.y, obs.width, obs.height);
+                dodgeCtx.shadowBlur = 0;
+
+                // Collision Box Check
+                if (
+                    playerX < obs.x + obs.width &&
+                    playerX + 40 > obs.x &&
+                    190 < obs.y + obs.height &&
+                    190 + 18 > obs.y
+                ) {
+                    stopDodgeGame();
+                    document.getElementById('dodgeStatus').textContent = "FIREWALL COLLISION! Retrying...";
+                    setTimeout(startDodgeGame, 1600);
+                    return;
+                }
+            }
+
+            obstacles = obstacles.filter(o => o.y < dodgeCanvas.height);
+            dodgeLoop = requestAnimationFrame(updateDodgeGame);
+        }
+
+        function winDodgeGame() {
+            stopDodgeGame();
+            document.getElementById('dodgeStatus').textContent = "EVASION SUCCESSFUL! Accessing Vault...";
+            setTimeout(() => {
+                const num = drawRandomNumber();
+                goToUnbox(num);
+            }, 1000);
+        }
+
+        /* ===================================================
+           GAME 4: CYBER CLAW GRAB (WITH ATTEMPTS & BLOCKAGES)
+        =================================================== */
+        let clawCanvas, clawCtx;
+        let clawLoop = null;
+        let clawX = 20;
+        let clawY = 30;
+        let clawSpeedX = 2;
+        let clawState = 'SWEEPING'; // SWEEPING, DROPPING, RETRACTING
+        let clawAttempts = 3;
+        let isClawActive = false;
+
+        // Blockage laser obstacles moving horizontally
+        let laserObstacles = [
+            { x: 10, y: 90, width: 70, height: 8, speed: 2.2, dir: 1 },
+            { x: 180, y: 135, width: 80, height: 8, speed: 2.8, dir: -1 }
+        ];
+
+        // Target Gift Box at bottom
+        let giftTarget = { x: 130, y: 180, width: 45, height: 30 };
+
+        function startClawGame() {
+            playClickSound();
+            document.getElementById('modeSelectScreen').classList.add('hidden');
+            document.getElementById('clawScreen').classList.remove('hidden');
+
+            clawCanvas = document.getElementById('clawCanvas');
+            clawCtx = clawCanvas.getContext('2d');
+
+            clawAttempts = 3;
+            resetClawPosition();
+            isClawActive = true;
+            updateClawStatus();
+
+            cancelAnimationFrame(clawLoop);
+            updateClawGame();
+        }
+
+        function resetClawPosition() {
+            clawX = 20;
+            clawY = 30;
+            clawSpeedX = 2;
+            clawState = 'SWEEPING';
+            // Randomize target position slightly for replayability
+            giftTarget.x = 40 + Math.floor(Math.random() * 200);
+        }
+
+        function updateClawStatus() {
+            document.getElementById('clawStatus').textContent = `Attempts Left: ${clawAttempts} | Lower claw past obstacles!`;
+        }
+
+        function stopClawGame() {
+            isClawActive = false;
+            cancelAnimationFrame(clawLoop);
+        }
+
+        function dropClaw() {
+            if (!isClawActive || clawState !== 'SWEEPING') return;
+            playClickSound();
+            clawState = 'DROPPING';
+        }
+
+        function failClawAttempt(reasonMsg) {
+            clawAttempts--;
+            if (clawAttempts <= 0) {
+                stopClawGame();
+                document.getElementById('clawStatus').textContent = `${reasonMsg} OUT OF ATTEMPTS! Retrying...`;
+                setTimeout(startClawGame, 2000);
+            } else {
+                document.getElementById('clawStatus').textContent = `${reasonMsg} Attempt Lost! (${clawAttempts} left)`;
+                resetClawPosition();
+            }
+        }
+
+        function updateClawGame() {
+            if (!isClawActive) return;
+
+            clawCtx.clearRect(0, 0, clawCanvas.width, clawCanvas.height);
+
+            // 1. Move & Draw Laser Blockages
+            for (let laser of laserObstacles) {
+                laser.x += laser.speed * laser.dir;
+                if (laser.x <= 5 || laser.x + laser.width >= clawCanvas.width - 5) {
+                    laser.dir *= -1;
+                }
+
+                clawCtx.fillStyle = '#ff3333';
+                clawCtx.shadowBlur = 8;
+                clawCtx.shadowColor = '#ff3333';
+                clawCtx.fillRect(laser.x, laser.y, laser.width, laser.height);
+                clawCtx.shadowBlur = 0;
+            }
+
+            // 2. Move Claw Horizontally (Sweeping State)
+            if (clawState === 'SWEEPING') {
+                clawX += clawSpeedX;
+                if (clawX <= 20 || clawX >= clawCanvas.width - 20) {
+                    clawSpeedX *= -1;
+                }
+            } else if (clawState === 'DROPPING') {
+                clawY += 3.5;
+
+                // Check collision with Blockage Lasers
+                for (let laser of laserObstacles) {
+                    if (
+                        clawX > laser.x &&
+                        clawX < laser.x + laser.width &&
+                        clawY >= laser.y &&
+                        clawY <= laser.y + laser.height
+                    ) {
+                        failClawAttempt("LASER BLOCKED!");
+                        return;
+                    }
+                }
+
+                // Check hit Target Box
+                if (
+                    clawX >= giftTarget.x &&
+                    clawX <= giftTarget.x + giftTarget.width &&
+                    clawY >= giftTarget.y
+                ) {
+                    clawState = 'RETRACTING';
+                    document.getElementById('clawStatus').textContent = "TARGET SECURED! Retracting...";
+                    setTimeout(() => {
+                        stopClawGame();
+                        const num = drawRandomNumber();
+                        goToUnbox(num);
+                    }, 1200);
+                } else if (clawY >= clawCanvas.height - 15) {
+                    failClawAttempt("MISSED TARGET!");
+                    return;
+                }
+            } else if (clawState === 'RETRACTING') {
+                clawY -= 3;
+            }
+
+            // 3. Render Target Gift Box
+            clawCtx.fillStyle = '#0f4021';
+            clawCtx.strokeStyle = '#52f89d';
+            clawCtx.lineWidth = 2;
+            clawCtx.fillRect(giftTarget.x, giftTarget.y, giftTarget.width, giftTarget.height);
+            clawCtx.strokeRect(giftTarget.x, giftTarget.y, giftTarget.width, giftTarget.height);
+
+            clawCtx.fillStyle = '#52f89d';
+            clawCtx.font = '10px Courier New';
+            clawCtx.fillText("GIFT", giftTarget.x + 10, giftTarget.y + 18);
+
+            // 4. Render Claw Wire & Head
+            clawCtx.strokeStyle = '#2ed173';
+            clawCtx.lineWidth = 2;
+            clawCtx.beginPath();
+            clawCtx.moveTo(clawX, 0);
+            clawCtx.lineTo(clawX, clawY);
+            clawCtx.stroke();
+
+            // Claw Prongs
+            clawCtx.fillStyle = '#52f89d';
+            clawCtx.fillRect(clawX - 8, clawY, 16, 6);
+            clawCtx.fillRect(clawX - 12, clawY + 6, 5, 10);
+            clawCtx.fillRect(clawX + 7, clawY + 6, 5, 10);
+
+            clawLoop = requestAnimationFrame(updateClawGame);
+        }
+
+        /* ===================================================
+           GAME 5: TENSION HOLD (10-SECOND CATCH ROPE)
+        =================================================== */
+        let tensionVal = 50;
+        let tensionTimer = 10.0;
+        let tensionInterval = null;
+        let isTensionActive = false;
+
+        function startTensionGame() {
+            playClickSound();
+            document.getElementById('modeSelectScreen').classList.add('hidden');
+            document.getElementById('tensionScreen').classList.remove('hidden');
+
+            tensionVal = 50;
+            tensionTimer = 10.0;
+            isTensionActive = true;
+            document.getElementById('tensionStatus').textContent = "Tap rapidly to keep tension in GREEN ZONE for 10s!";
+            document.getElementById('tensionTimer').textContent = "10.0";
+
+            clearInterval(tensionInterval);
+            tensionInterval = setInterval(() => {
+                if (!isTensionActive) return;
+
+                // Tension constantly drops due to weight gravity
+                tensionVal -= 1.8;
+                tensionTimer -= 0.05;
+
+                if (tensionTimer <= 0) {
+                    winTensionGame();
+                    return;
+                }
+
+                document.getElementById('tensionTimer').textContent = Math.max(0, tensionTimer).toFixed(1);
+                updateTensionBar();
+
+                // Snapped / Failed conditions
+                if (tensionVal <= 5) {
+                    failTensionGame("CABLE SLACKENED! Payload dropped.");
+                } else if (tensionVal >= 98) {
+                    failTensionGame("TENSION OVERLOAD! Cable snapped.");
+                }
+            }, 50);
+        }
+
+        function pulseTension() {
+            if (!isTensionActive) return;
+            playClickSound();
+            tensionVal += 7.5;
+            updateTensionBar();
+        }
+
+        function updateTensionBar() {
+            const fill = document.getElementById('tensionFill');
+            fill.style.width = Math.min(100, Math.max(0, tensionVal)) + '%';
+
+            // Visual feedback based on safe bounds (40% to 80%)
+            if (tensionVal >= 40 && tensionVal <= 80) {
+                fill.style.backgroundColor = '#52f89d';
+            } else {
+                fill.style.backgroundColor = '#ff4444';
+            }
+        }
+
+        function failTensionGame(msg) {
+            stopTensionGame();
+            document.getElementById('tensionStatus').textContent = `${msg} Retrying...`;
+            setTimeout(startTensionGame, 1800);
+        }
+
+        function winTensionGame() {
+            stopTensionGame();
+            document.getElementById('tensionStatus').textContent = "STABLE TENSION HELD! Securing Box...";
+            setTimeout(() => {
+                const num = drawRandomNumber();
+                goToUnbox(num);
+            }, 1000);
+        }
+
+        function stopTensionGame() {
+            isTensionActive = false;
+            clearInterval(tensionInterval);
+        }
+
+        /* ===================================================
+           GAME 6: OPERATOR CHALLENGE
+        =================================================== */
+        function startOperatorGame() {
+            playClickSound();
+            document.getElementById('modeSelectScreen').classList.add('hidden');
+            document.getElementById('operatorScreen').classList.remove('hidden');
+        }
+
+        function operatorApprove() {
+            playClickSound();
+            alert("OPERATOR AUTHORIZATION GRANTED!");
+            const num = drawRandomNumber();
+            goToUnbox(num);
+        }
+
+        function operatorReject() {
+            playClickSound();
+            alert("OPERATOR DENIED AUTHORIZATION. Try again!");
+        }
+
+        renderGrid();
+    </script>
+</body>
+</html>
