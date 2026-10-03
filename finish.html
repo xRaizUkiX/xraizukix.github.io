@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protocol Complete - Final Protocol</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        body {
+            background: radial-gradient(circle at center, #061c0f 0%, #020a05 60%, #000000 100%);
+            color: #2ed173;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Subtle Matrix / Grid Overlay */
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(0,0,0,0.5) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(0,0,0,0.5) 1px, transparent 1px);
+            background-size: 20px 20px;
+            pointer-events: none;
+            opacity: 0.3;
+            z-index: 0;
+        }
+
+        /* Particle Canvas for Optional Phase 5 Celebration */
+        #particleCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 1.5s ease;
+        }
+
+        /* Card Frame Container */
+        .card {
+            background: rgba(4, 18, 10, 0.95);
+            border: 1px solid #1e703d;
+            box-shadow: 0 0 30px rgba(16, 120, 58, 0.25);
+            border-radius: 8px;
+            padding: 25px;
+            max-width: 580px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            max-height: 90vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #134e2a #040d07;
+        }
+
+        .card::-webkit-scrollbar {
+            width: 6px;
+        }
+        .card::-webkit-scrollbar-track {
+            background: #040d07;
+        }
+        .card::-webkit-scrollbar-thumb {
+            background: #134e2a;
+            border-radius: 3px;
+        }
+
+        /* Shared Typography & Layout Elements */
+        .finish-title {
+            font-size: 1.25rem;
+            color: #52f89d;
+            margin-bottom: 12px;
+            letter-spacing: 1.5px;
+            text-shadow: 0 0 8px rgba(82, 248, 157, 0.4);
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(82, 248, 157, 0.12);
+            border: 1px solid #52f89d;
+            color: #52f89d;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            letter-spacing: 1px;
+            margin-bottom: 18px;
+        }
+
+        .terminal-panel {
+            background: rgba(0, 0, 0, 0.55);
+            border: 1px dashed #1e703d;
+            border-radius: 6px;
+            padding: 18px;
+            margin: 15px 0;
+            text-align: left;
+            line-height: 1.6;
+            font-size: 0.88rem;
+            color: #3bf187;
+        }
+
+        .terminal-panel p {
+            margin-bottom: 12px;
+        }
+        .terminal-panel p:last-child {
+            margin-bottom: 0;
+        }
+
+        .footer-note {
+            font-size: 0.75rem;
+            color: #1f9a53;
+            margin: 15px 0;
+            letter-spacing: 0.5px;
+        }
+
+        /* Standard Cyber Buttons */
+        button {
+            background: #0f4021;
+            color: #3bf187;
+            border: 1px solid #1e703d;
+            padding: 12px 20px;
+            font-size: 0.88rem;
+            cursor: pointer;
+            border-radius: 4px;
+            letter-spacing: 1px;
+            transition: all 0.25s ease;
+            font-weight: bold;
+            margin: 5px;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        button:hover:not(:disabled) {
+            background: #185e32;
+            border-color: #2ed173;
+            box-shadow: 0 0 12px rgba(46, 209, 115, 0.4);
+            color: #ffffff;
+        }
+
+        button:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .secondary-btn {
+            background: transparent;
+            border-color: #134e2a;
+            color: #1f9a53;
+        }
+
+        .secondary-btn:hover:not(:disabled) {
+            background: rgba(19, 78, 42, 0.3);
+            border-color: #1e703d;
+            color: #3bf187;
+        }
+
+        /* Smooth Phase Transition Control */
+        .phase {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .phase.hidden {
+            display: none !important;
+            opacity: 0;
+            transform: translateY(12px);
+            pointer-events: none;
+        }
+
+        .phase.fade-out {
+            opacity: 0;
+            transform: translateY(-12px);
+        }
+
+        /* Typing & Terminal Cursor */
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 15px;
+            background-color: #2ed173;
+            margin-left: 3px;
+            vertical-align: middle;
+            animation: blink 0.9s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* Subtle Terminal Glitch Effect */
+        .glitch-text {
+            position: relative;
+            animation: glitch 2.5s infinite;
+        }
+
+        @keyframes glitch {
+            0%, 90%, 100% { transform: translate(0, 0); opacity: 1; }
+            92% { transform: translate(-1px, 1px); opacity: 0.9; }
+            94% { transform: translate(1px, -1px); opacity: 1; }
+            96% { transform: translate(-2px, 0); opacity: 0.8; }
+            98% { transform: translate(0, 0); opacity: 1; }
+        }
+
+        /* Ascii Banner Formatting */
+        .ascii-art {
+            font-size: 0.72rem;
+            line-height: 1.15;
+            color: #52f89d;
+            white-space: pre;
+            margin: 15px 0;
+            text-shadow: 0 0 5px rgba(82, 248, 157, 0.5);
+            overflow-x: auto;
+        }
+
+        /* Evolution Timeline Layout */
+        .timeline-box {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid #134e2a;
+            border-radius: 4px;
+            padding: 12px;
+            font-size: 0.8rem;
+            color: #52f89d;
+            letter-spacing: 0.5px;
+            margin: 15px 0;
+            line-height: 1.8;
+        }
+
+        .gentle-response-box {
+            background: rgba(82, 248, 157, 0.08);
+            border: 1px dashed #52f89d;
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: #52f89d;
+            margin-top: 15px;
+        }
+
+        /* Respect Reduced Motion Accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            .phase { transition: opacity 0.2s ease !important; transform: none !important; }
+            .cursor { animation: none; opacity: 1; }
+            .glitch-text { animation: none; }
+        }
+
+        /* Mobile Optimization Fixes */
+        @media (max-width: 480px) {
+            .card { padding: 18px; }
+            .finish-title { font-size: 1.1rem; }
+            .terminal-panel { font-size: 0.82rem; padding: 14px; }
+            .ascii-art { font-size: 0.58rem; }
+            button { width: 100%; margin: 4px 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="grid-overlay"></div>
+    <canvas id="particleCanvas"></canvas>
+
+    <div class="card" id="mainCard">
+        
+        <!-- ===================================================
+             PHASE 1: EXISTING VICTORY SCREEN
+        =================================================== -->
+        <div id="phase1" class="phase">
+            <h1 class="finish-title">SYSTEM PROTOCOL COMPLETE</h1>
+            <div class="badge">&#127881; SURVIVAL STATUS: 100% PATIENCE RETAINED</div>
+
+            <div class="terminal-panel">
+                <p><strong>CONGRATULATIONS ANIKA,</strong></p>
+                <p>You have successfully finish all 20 gifts without losing your patience.</p>
+                <p>Your patience and willingness to play with me through this every little minigame have officially brought this mission to its end.</p>
+            </div>
+
+            <div class="footer-note">
+                STATUS: ALL 20/20 SECURITY NODES DECRYPTED &amp; CLAIMED
+            </div>
+
+            <div>
+                <button id="btnInitHidden" onclick="startHiddenProtocolSequence()">[ COMPLETE PROTOCOL ]</button>
+                <button class="secondary-btn" onclick="window.location.href='index.html'">&larr; BACK TO MAIN</button>
+            </div>
+        </div>
+
+        <!-- ===================================================
+             PHASE 1.5: TRANSITION LOG CONSOLE
+        =================================================== -->
+        <div id="phaseTransition" class="phase hidden">
+            <div class="terminal-panel" style="min-height: 180px; font-family: monospace;">
+                <div id="transitionLogs"></div>
+                <span class="cursor"></span>
+            </div>
+        </div>
+
+        <!-- ===================================================
+             PHASE 2: FINAL PROTOCOL (CONFESSION MESSAGE)
+        =================================================== -->
+        <div id="phase2" class="phase hidden">
+            <h1 class="finish-title glitch-text">&#128272; FINAL PROTOCOL</h1>
+            
+            <div class="terminal-panel">
+                <div id="phase2TypedText"></div>
+                <span id="phase2Cursor" class="cursor hidden"></span>
+            </div>
+
+            <button id="btnProceedToQuestion" class="hidden" onclick="transitionToPhase3()">[ PROCEED TO FINAL QUESTION &rarr; ]</button>
+        </div>
+
+        <!-- ===================================================
+             PHASE 3: FINAL QUESTION
+        =================================================== -->
+        <div id="phase3" class="phase hidden">
+            <h1 class="finish-title">&#128272; FINAL QUESTION</h1>
+
+            <div class="terminal-panel" style="text-align: center;">
+                <p style="font-size: 1.05rem; color: #52f89d; margin-bottom: 8px;">
+                    <strong id="displayHerName">ANIKA,</strong>
+                </p>
+                <p style="font-size: 1.15rem; color: #ffffff; font-weight: bold; letter-spacing: 1px; margin-bottom: 0;">
+                    WILL YOU BE MY GIRLFRIEND?
+                </p>
+            </div>
+
+            <div id="phase3Buttons" class="hidden">
+                <button onclick="handleYesClick()" style="padding: 14px 28px; font-size: 0.95rem;">[ YES &#10084;&#65039; ]</button>
+                <button class="secondary-btn" onclick="handleNeedMomentClick()">[ I NEED A MOMENT &#129402; ]</button>
+            </div>
+
+            <div id="needMomentMsg" class="gentle-response-box hidden">
+                Of course. Take your time. &#10084;&#65039;
+            </div>
+        </div>
+
+        <!-- ===================================================
+             PHASE 3.5: CONFIRMATION STEP
+        =================================================== -->
+        <div id="phaseConfirm" class="phase hidden">
+            <h1 class="finish-title" style="color: #ffaa44;">FINAL CONFIRMATION REQUIRED</h1>
+            
+            <div class="terminal-panel" style="text-align: center;">
+                <p>Are you sure you want to unlock this new chapter?</p>
+            </div>
+
+            <div>
+                <button onclick="confirmRelationship()" style="padding: 12px 26px;">[ CONFIRM &#10084;&#65039; ]</button>
+                <button class="secondary-btn" onclick="cancelConfirmation()">[ GO BACK ]</button>
+            </div>
+        </div>
+
+        <!-- ===================================================
+             PHASE 4 & 5: SUCCESS & ENDING
+        =================================================== -->
+        <div id="phase4" class="phase hidden">
+            <div class="ascii-art">
+╔══════════════════════════════════════╗
+║                                      ║
+║        GIRLFRIEND.EXE INSTALLED      ║
+║                                      ║
+╚══════════════════════════════════════╝</div>
+
+            <div class="badge" style="background: rgba(46, 209, 115, 0.2); border-color: #2ed173;">
+                STATUS UPDATED
+            </div>
+
+            <div class="timeline-box">
+                STRANGERS &rarr; FRIENDS &rarr; SOMETHING MORE &rarr; <strong>GIRLFRIENDS &#10084;&#65039;</strong>
+            </div>
+
+            <p style="color: #52f89d; font-size: 0.95rem; margin-top: 15px; font-weight: bold;">
+                NEW ADVENTURE UNLOCKED.
+            </p>
+
+            <p style="font-size: 0.88rem; color: #2ed173; margin-top: 15px; font-style: italic;">
+                "This time, there are no instructions."
+            </p>
+
+            <div class="footer-note" style="margin-top: 25px;">
+                // SYSTEM PROTOCOL PERMANENTLY SAVED &bull; MISSION ACCOMPLISHED
+            </div>
+
+            <button class="secondary-btn" onclick="window.location.href='index.html'" style="margin-top: 10px;">&larr; MAIN MENU</button>
+        </div>
+
+    </div>
+
+    <!-- Audio Helper Integration -->
+    <script src="audio.js"></script>
+    <script>
+        /* Fallback default name if sessionStorage is empty */
+        const DEFAULT_NAME = "Anika";
+
+        /* ===================================================
+           DYNAMIC NAME INITIALIZATION
+        =================================================== */
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedName = sessionStorage.getItem("authenticatedUserName");
+            const finalName = savedName && savedName.trim() !== "" ? savedName.trim() : DEFAULT_NAME;
+            
+            const nameEl = document.getElementById('displayHerName');
+            if (nameEl) {
+                nameEl.innerText = `${finalName.toUpperCase()},`;
+            }
+        });
+
+        /* ===================================================
+           CONFIGURABLE TEXT STRINGS & EDITABLE MESSAGES
+        =================================================== */
+        const CONFESSION_PARAGRAPHS = [
+            "The very reason I have made this is because you were turning 20 and I wanna make it memorable and special.",
+            "Don't worry about the money I've spent, because this was my plan months before so I have saved enough little by little.",
+            "I know I couldn't afford you something that you probably like and I'd be jealous if someone did.",
+            
+            "But hey, it doesn't mean this is cheap. I wanted every little part of this to remind you of something. A memory, a feeling, a joke, something I noticed about you, or simply a reason why you mean something to me.",
+            "And honestly...",
+   
+            "<strong>I LOVE YOU.</strong>",
+            "I love being around you.<br>I love the little things about you.<br>I love the memories we've made, and I want to make more of them with you.",
+            "Even in the hard times or we're breaking down, I will choose you",
+            "So after all the games, gifts, and ridiculous security protocols... whatever happens after, I'm glad for this kind of experience with you.",
+            
+            
+            "before this page ends, there's only one thing left for me to ask."
+        ];
+
+        let isTransitioning = false;
+
+        /* Helper to switch active DOM phases smoothly */
+        function switchPhase(currentPhaseId, nextPhaseId, delay = 600, callback = null) {
+            const currentEl = document.getElementById(currentPhaseId);
+            const nextEl = document.getElementById(nextPhaseId);
+
+            currentEl.classList.add('fade-out');
+
+            setTimeout(() => {
+                currentEl.classList.add('hidden');
+                currentEl.classList.remove('fade-out');
+
+                nextEl.classList.remove('hidden');
+                // Trigger reflow for transition
+                void nextEl.offsetWidth;
+                
+                if (callback) callback();
+            }, delay);
+        }
+
+        /* Safe play sound helper */
+        function triggerClickSound() {
+            if (typeof playClickSound === 'function') {
+                playClickSound();
+            }
+        }
+
+        /* ===================================================
+           PHASE 1 -> TRANSITION LOGIC
+        =================================================== */
+        function startHiddenProtocolSequence() {
+            if (isTransitioning) return;
+            isTransitioning = true;
+            triggerClickSound();
+
+            document.getElementById('btnInitHidden').disabled = true;
+
+            switchPhase('phase1', 'phaseTransition', 600, () => {
+                runTerminalLogs();
+            });
+        }
+
+        function runTerminalLogs() {
+            const container = document.getElementById('transitionLogs');
+            const logs = [
+                "SYSTEM STATUS: COMPLETE",
+                "20/20 NODES DECRYPTED",
+                "CHECKING FOR ADDITIONAL PROTOCOLS...",
+                "...",
+                "...",
+                "<span style='color:#ffaa44;'>WARNING: UNAUTHORIZED FINAL PROTOCOL DETECTED.</span>",
+                "<br><strong style='color:#52f89d;'>>> FINAL PROTOCOL FOUND</strong>"
+            ];
+
+            let step = 0;
+            const logInterval = setInterval(() => {
+                const line = document.createElement('div');
+                line.style.marginBottom = '6px';
+                line.innerHTML = logs[step];
+                container.appendChild(line);
+                step++;
+
+                if (step >= logs.length) {
+                    clearInterval(logInterval);
+                    setTimeout(() => {
+                        switchPhase('phaseTransition', 'phase2', 600, () => {
+                            isTransitioning = false;
+                            startPhase2Typing();
+                        });
+                    }, 1400);
+                }
+            }, 550);
+        }
+
+        /* ===================================================
+           PHASE 2: TYPING ANIMATION FOR CONFESSION
+        =================================================== */
+        function startPhase2Typing() {
+            const targetEl = document.getElementById('phase2TypedText');
+            const cursorEl = document.getElementById('phase2Cursor');
+            cursorEl.classList.remove('hidden');
+
+            let paraIndex = 0;
+
+            function renderNextParagraph() {
+                if (paraIndex >= CONFESSION_PARAGRAPHS.length) {
+                    cursorEl.classList.add('hidden');
+                    const btn = document.getElementById('btnProceedToQuestion');
+                    btn.classList.remove('hidden');
+                    return;
+                }
+
+                const p = document.createElement('p');
+                p.innerHTML = CONFESSION_PARAGRAPHS[paraIndex];
+                p.style.opacity = '0';
+                p.style.transition = 'opacity 0.6s ease';
+                targetEl.appendChild(p);
+
+                // Auto-scroll card down as text reveals
+                const card = document.getElementById('mainCard');
+                card.scrollTop = card.scrollHeight;
+
+                setTimeout(() => {
+                    p.style.opacity = '1';
+                    paraIndex++;
+                    
+                    // Pause slightly longer on emphatic lines
+                    const delay = (paraIndex === 6) ? 1800 : 1200;
+                    setTimeout(renderNextParagraph, delay);
+                }, 50);
+            }
+
+            renderNextParagraph();
+        }
+
+        /* ===================================================
+           PHASE 3: QUESTION & RESPONSES
+        =================================================== */
+        function transitionToPhase3() {
+            if (isTransitioning) return;
+            isTransitioning = true;
+            triggerClickSound();
+
+            switchPhase('phase2', 'phase3', 600, () => {
+                isTransitioning = false;
+                // 1-2 Second pause before revealing answer options
+                setTimeout(() => {
+                    const btnContainer = document.getElementById('phase3Buttons');
+                    btnContainer.classList.remove('hidden');
+                    btnContainer.style.opacity = '0';
+                    btnContainer.style.transition = 'opacity 0.8s ease';
+                    setTimeout(() => btnContainer.style.opacity = '1', 50);
+                }, 1500);
+            });
+        }
+
+        function handleNeedMomentClick() {
+            triggerClickSound();
+            const msg = document.getElementById('needMomentMsg');
+            msg.classList.remove('hidden');
+        }
+
+        function handleYesClick() {
+            if (isTransitioning) return;
+            isTransitioning = true;
+            triggerClickSound();
+
+            switchPhase('phase3', 'phaseConfirm', 600, () => {
+                isTransitioning = false;
+            });
+        }
+
+        function cancelConfirmation() {
+            if (isTransitioning) return;
+            isTransitioning = true;
+            triggerClickSound();
+
+            switchPhase('phaseConfirm', 'phase3', 600, () => {
+                isTransitioning = false;
+            });
+        }
+
+        function confirmRelationship() {
+            if (isTransitioning) return;
+            isTransitioning = true;
+            triggerClickSound();
+
+            switchPhase('phaseConfirm', 'phaseTransition', 600, () => {
+                runSuccessTransitionLogs();
+            });
+        }
+
+        /* ===================================================
+           PHASE 4 & 5: SUCCESS TRANSITION & PARTICLES
+        =================================================== */
+        function runSuccessTransitionLogs() {
+            const container = document.getElementById('transitionLogs');
+            container.innerHTML = ''; // clear previous logs
+
+            const logs = [
+                "> RESPONSE RECEIVED...",
+                "> PROCESSING...",
+                "> ...",
+                "> RESPONSE ACCEPTED.",
+                "<strong style='color:#52f89d;'>NEW STATUS DETECTED.</strong>"
+            ];
+
+            let step = 0;
+            const logInterval = setInterval(() => {
+                const line = document.createElement('div');
+                line.style.marginBottom = '6px';
+                line.innerHTML = logs[step];
+                container.appendChild(line);
+                step++;
+
+                if (step >= logs.length) {
+                    clearInterval(logInterval);
+                    setTimeout(() => {
+                        switchPhase('phaseTransition', 'phase4', 600, () => {
+                            isTransitioning = false;
+                            initSubtleCelebration();
+                        });
+                    }, 1200);
+                }
+            }, 500);
+        }
+
+        /* ===================================================
+           PHASE 5: SUBTLE TERMINAL MATRIX/HEART PARTICLES
+        =================================================== */
+        function initSubtleCelebration() {
+            const canvas = document.getElementById('particleCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.style.opacity = '1';
+
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            const particles = [];
+            const particleSymbols = ['0', '1', '♥', '+', '•'];
+
+            for (let i = 0; i < 35; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    symbol: particleSymbols[Math.floor(Math.random() * particleSymbols.length)],
+                    speedY: 0.3 + Math.random() * 0.7,
+                    size: 10 + Math.random() * 8,
+                    opacity: 0.15 + Math.random() * 0.35
+                });
+            }
+
+            function renderParticles() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                particles.forEach(p => {
+                    p.y -= p.speedY;
+                    if (p.y < -20) {
+                        p.y = canvas.height + 20;
+                        p.x = Math.random() * canvas.width;
+                    }
+
+                    ctx.fillStyle = p.symbol === '♥' 
+                        ? `rgba(82, 248, 157, ${p.opacity + 0.15})` 
+                        : `rgba(46, 209, 115, ${p.opacity})`;
+                    ctx.font = `${p.size}px 'Courier New', monospace`;
+                    ctx.fillText(p.symbol, p.x, p.y);
+                });
+
+                requestAnimationFrame(renderParticles);
+            }
+
+            renderParticles();
+        }
+    </script>
+</body>
+</html>
