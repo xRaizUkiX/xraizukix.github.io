@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Our Little Pixel Room ♡ — Mon Amour's Hideout</title>
+  <style>
+    :root {
+      --bg-cream: #F8F5EE;
+      --sage-green: #B9D7C2;
+      --dusty-pink: #E8B9CD;
+      --powder-blue: #A9C8E8;
+      --deep-sage: #465D52;
+      --white: #FFFFFF;
+      --dark-text: #2D3A34;
+      --shadow: rgba(70, 93, 82, 0.15);
+      --pixel-size: 4px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Courier New', Courier, monospace, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      background-color: var(--bg-cream);
+      color: var(--dark-text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 15px;
+      transition: background-color 0.5s ease;
+    }
+
+    body.night-mode {
+      background-color: #2b3832;
+      color: #e2ece7;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      color: var(--deep-sage);
+      margin-bottom: 6px;
+      text-shadow: 2px 2px 0px var(--sage-green);
+    }
+
+    body.night-mode h1 {
+      color: var(--sage-green);
+      text-shadow: 2px 2px 0px #1e2823;
+    }
+
+    p.subtitle {
+      font-size: 0.95rem;
+      opacity: 0.9;
+    }
+
+    .audio-control {
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      z-index: 100;
+      background: var(--white);
+      border: 2px solid var(--deep-sage);
+      border-radius: 20px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      box-shadow: 2px 2px 0px var(--deep-sage);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    body.night-mode .audio-control {
+      background: #364840;
+      color: #FFF;
+      border-color: var(--sage-green);
+      box-shadow: 2px 2px 0px #1e2823;
+    }
+
+    /* MAIN CONTAINER */
+    .container {
+      width: 100%;
+      max-width: 850px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* ROOM BOARD & CANVAS */
+    .room-card {
+      background: var(--white);
+      border: 4px solid var(--deep-sage);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 6px 6px 0px var(--deep-sage);
+      position: relative;
+      overflow: hidden;
+      transition: background-color 0.5s ease;
+    }
+
+    body.night-mode .room-card {
+      background: #1f2b25;
+      border-color: var(--sage-green);
+      box-shadow: 6px 6px 0px #111a16;
+    }
+
+    .room-card.lamp-off {
+      filter: brightness(0.7) contrast(1.1);
+    }
+
+    /* PIXEL ROOM ARTWORK */
+    .pixel-room {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-gap: 15px;
+      min-height: 320px;
+      position: relative;
+    }
+
+    @media (max-width: 600px) {
+      .pixel-room {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .interactive-item {
+      background: var(--bg-cream);
+      border: 3px solid var(--deep-sage);
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.3s;
+      box-shadow: 3px 3px 0px var(--deep-sage);
+      text-align: center;
+      position: relative;
+    }
+
+    body.night-mode .interactive-item {
+      background: #2b3932;
+      border-color: var(--sage-green);
+      box-shadow: 3px 3px 0px #111a16;
+    }
+
+    .interactive-item:hover, .interactive-item:focus {
+      transform: translateY(-3px);
+      box-shadow: 5px 5px 0px var(--deep-sage);
+      outline: none;
+    }
+
+    .interactive-item:active {
+      transform: translateY(0);
+      box-shadow: 1px 1px 0px var(--deep-sage);
+    }
+
+    .item-icon {
+      font-size: 2.2rem;
+      margin-bottom: 6px;
+    }
+
+    .item-label {
+      font-size: 0.85rem;
+      font-weight: bold;
+    }
+
+    /* PIXEL CHARACTERS DISPLAY */
+    .characters-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 30px;
+      margin: 15px 0;
+      padding: 10px;
+      background: rgba(185, 215, 194, 0.2);
+      border-radius: 8px;
+      border: 2px dashed var(--deep-sage);
+    }
+
+    .char-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .pixel-avatar {
+      width: 32px;
+      height: 32px;
+      position: relative;
+      background-size: contain;
+      image-rendering: pixelated;
+    }
+
+    /* CSS Pixel Avatars */
+    .avatar-rachel {
+      background-color: var(--powder-blue);
+      border: 3px solid #335580;
+      border-radius: 4px;
+      box-shadow: inset -4px -4px 0 #284263;
+    }
+
+    .avatar-anika {
+      background-color: var(--sage-green);
+      border: 3px solid var(--deep-sage);
+      border-radius: 4px;
+      box-shadow: inset -4px -4px 0 #2f423a;
+    }
+
+    .char-name {
+      font-size: 0.75rem;
+      font-weight: bold;
+    }
+
+    /* SECTIONS & PANELS */
+    .section-title {
+      font-size: 1.2rem;
+      color: var(--deep-sage);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    body.night-mode .section-title {
+      color: var(--sage-green);
+    }
+
+    /* MEMORY BOARD GRID */
+    .memory-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    .memory-card {
+      background: #FFF;
+      border: 2px solid var(--deep-sage);
+      border-radius: 6px;
+      padding: 12px;
+      font-size: 0.85rem;
+      line-height: 1.4;
+      box-shadow: 3px 3px 0px var(--sage-green);
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+
+    body.night-mode .memory-card {
+      background: #283730;
+      border-color: var(--sage-green);
+      box-shadow: 3px 3px 0px #1a2520;
+    }
+
+    .memory-card:hover {
+      transform: scale(1.02);
+    }
+
+    /* CLAW MACHINE GAME */
+    .claw-machine-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #FAF3E0;
+      border: 3px solid var(--deep-sage);
+      border-radius: 10px;
+      padding: 15px;
+      position: relative;
+    }
+
+    body.night-mode .claw-machine-area {
+      background: #24312a;
+    }
+
+    .claw-display {
+      width: 100%;
+      max-width: 300px;
+      height: 180px;
+      background: #EAF4F4;
+      border: 3px solid var(--deep-sage);
+      border-radius: 6px;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 15px;
+    }
+
+    body.night-mode .claw-display {
+      background: #17221d;
+    }
+
+    .claw-track {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 12px;
+      background: #CCC;
+      border-bottom: 2px solid #999;
+    }
+
+    .claw-mechanism {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      width: 30px;
+      height: 30px;
+      transform: translateX(-50%);
+      transition: left 0.1s linear, top 0.6s ease-in-out;
+      z-index: 5;
+    }
+
+    .claw-string {
+      width: 2px;
+      background: #555;
+      height: 20px;
+      margin: 0 auto;
+    }
+
+    .claw-hand {
+      width: 24px;
+      height: 12px;
+      border: 2px solid #333;
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      margin: 0 auto;
+      background: #DDD;
+    }
+
+    .prizes-pool {
+      position: absolute;
+      bottom: 5px;
+      width: 100%;
+      display: flex;
+      justify-content: space-around;
+      padding: 0 10px;
+    }
+
+    .prize-item {
+      font-size: 1.5rem;
+    }
+
+    .claw-controls {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      max-width: 300px;
+      justify-content: center;
+    }
+
+    .btn {
+      background: var(--dusty-pink);
+      border: 2px solid var(--deep-sage);
+      border-radius: 6px;
+      padding: 8px 16px;
+      font-weight: bold;
+      color: var(--dark-text);
+      cursor: pointer;
+      box-shadow: 2px 2px 0px var(--deep-sage);
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 0px 0px 0px;
+    }
+
+    .btn-green {
+      background: var(--sage-green);
+    }
+
+    /* MODAL POPUPS */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      padding: 15px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-box {
+      background: var(--white);
+      border: 4px solid var(--deep-sage);
+      border-radius: 10px;
+      width: 100%;
+      max-width: 500px;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 20px;
+      box-shadow: 6px 6px 0px rgba(0,0,0,0.3);
+      position: relative;
+    }
+
+    body.night-mode .modal-box {
+      background: #233029;
+      color: #E2ECE7;
+      border-color: var(--sage-green);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      background: var(--dusty-pink);
+      border: 2px solid var(--deep-sage);
+      border-radius: 4px;
+      width: 28px;
+      height: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-title {
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+      color: var(--deep-sage);
+      border-bottom: 2px dashed var(--sage-green);
+      padding-bottom: 6px;
+    }
+
+    body.night-mode .modal-title {
+      color: var(--sage-green);
+    }
+
+    .modal-body {
+      font-size: 0.9rem;
+      line-height: 1.5;
+      margin-bottom: 15px;
+    }
+
+    /* PASSWORD INPUT FORM */
+    .password-form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .password-input {
+      padding: 8px 12px;
+      border: 2px solid var(--deep-sage);
+      border-radius: 4px;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    .letter-content {
+      white-space: pre-line;
+      background: #FAF8F2;
+      border: 2px solid var(--sage-green);
+      padding: 15px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: #333;
+    }
+
+    body.night-mode .letter-content {
+      background: #1b2620;
+      color: #dce7e1;
+      border-color: #3a5044;
+    }
+
+    /* ROYAL DECREE DISPLAY */
+    .decree-box {
+      background: var(--powder-blue);
+      border: 2px solid var(--deep-sage);
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 0.9rem;
+      margin-top: 10px;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.75rem;
+      opacity: 0.7;
+      margin-top: 20px;
+      padding-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <button class="audio-control" id="audioToggleBtn" onclick="toggleAudio()">
+    <span id="audioIcon">🎵</span> <span id="audioText">Music: Off</span>
+  </button>
+
+  <audio id="bgMusic" loop>
+    <source src="bgm.mp3" type="audio/mpeg">
+  </audio>
+
+  <header>
+    <h1 id="mainTitle">Our Little Pixel Room ♡</h1>
+    <p class="subtitle" id="welcomeMsg">Welcome back, Mon Amour. Your little corner of the world is here.</p>
+  </header>
+
+  <div class="container">
+
+    <!-- CHARACTERS -->
+    <div class="characters-container">
+      <div class="char-box">
+        <div class="pixel-avatar avatar-rachel" title="Rachel (sisyphuz)"></div>
+        <span class="char-name" id="nameRachel">Love (sisyphuz)</span>
+      </div>
+      <span style="font-size:0.8rem; font-weight:bold;">&amp;</span>
+      <div class="char-box">
+        <div class="pixel-avatar avatar-anika" title="Anika (Mon Amour)"></div>
+        <span class="char-name" id="nameAnika">Mon Amour</span>
+      </div>
+    </div>
+
+    <!-- MAIN BEDROOM GRID -->
+    <div class="room-card" id="roomCard">
+      <div class="section-title"><span>🏠</span> Interactive Bedroom</div>
+      <div class="pixel-room">
+        
+        <div class="interactive-item" onclick="interactBed()" tabindex="0">
+          <div class="item-icon">🛏️</div>
+          <div class="item-label">The Bed</div>
+        </div>
+
+        <div class="interactive-item" onclick="interactLamp()" tabindex="0">
+          <div class="item-icon" id="lampIcon">💡</div>
+          <div class="item-label">Bedside Lamp</div>
+        </div>
+
+        <div class="interactive-item" onclick="interactWindow()" tabindex="0">
+          <div class="item-icon" id="windowIcon">🪟</div>
+          <div class="item-label">Window</div>
+        </div>
+
+        <div class="interactive-item" onclick="interactPicture()" tabindex="0">
+          <div class="item-icon">🖼️</div>
+          <div class="item-label">Framed Picture</div>
+        </div>
+
+        <div class="interactive-item" onclick="interactBookshelf()" tabindex="0">
+          <div class="item-icon">📚</div>
+          <div class="item-label">Bookshelf</div>
+        </div>
+
+        <div class="interactive-item" onclick="openMemoryRoomModal()" tabindex="0">
+          <div class="item-icon">📖</div>
+          <div class="item-label">Our First Memory</div>
+        </div>
+
+        <div class="interactive-item" onclick="interactPlant()" tabindex="0">
+          <div class="item-icon">🪴</div>
+          <div class="item-label">Potted Plant</div>
+        </div>
+
+        <div class="interactive-item" onclick="interactRug()" tabindex="0">
+          <div class="item-icon">🧶</div>
+          <div class="item-label">Cozy Rug</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CLAW MACHINE MINI-GAME -->
+    <div class="room-card">
+      <div class="section-title"><span>👾</span> Mon Amour's Arcade Claw Machine</div>
+      <p style="font-size:0.85rem; margin-bottom:12px;">Since you love claw machines, here's one just for you!</p>
+      
+      <div class="claw-machine-area">
+        <div class="claw-display">
+          <div class="claw-track"></div>
+          <div class="claw-mechanism" id="clawMech">
+            <div class="claw-string"></div>
+            <div class="claw-hand"></div>
+          </div>
+          <div class="prizes-pool">
+            <span class="prize-item">🐸</span>
+            <span class="prize-item">🧸</span>
+            <span class="prize-item">💌</span>
+            <span class="prize-item">⭐</span>
+            <span class="prize-item">🧪</span>
+          </div>
+        </div>
+
+        <div class="claw-controls">
+          <button class="btn" onclick="moveClawLeft()">◀ Left</button>
+          <button class="btn btn-green" onclick="dropClaw()">DROP!</button>
+          <button class="btn" onclick="moveClawRight()">Right ▶</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- EVERYDAY MEMORIES BOARD -->
+    <div class="room-card">
+      <div class="section-title"><span>📌</span> Memory Board — Everyday Moments</div>
+      <div class="memory-grid" id="memoryGrid">
+        <!-- Injected via JavaScript -->
+      </div>
+    </div>
+
+    <!-- ROYAL DECREE -->
+    <div class="room-card">
+      <div class="section-title"><span>👑</span> Today's Royal Decree</div>
+      <p style="font-size: 0.85rem;">For Her Majesty's cheeky, bossy, and silly mood of the day.</p>
+      <div class="decree-box" id="decreeDisplay">Click the button below to receive today's order!</div>
+      <button class="btn btn-green" style="margin-top: 10px; width: 100%;" onclick="generateDecree()">Issue New Royal Decree 📜</button>
+    </div>
+
+  </div>
+
+  <footer>
+    Made with ♡ for Mon Amour • Powered by simple pixel dreams
+  </footer>
+
+  <!-- MODAL DIALOG -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <div class="modal-title" id="modalTitle">Modal Title</div>
+      <div class="modal-body" id="modalBody">Modal Body Text...</div>
+      <div id="modalFooter"></div>
+    </div>
+  </div>
+
+  <script>
+    /* ------------------------------------------------------------------
+       1. PERSONALIZATION CONFIGURATION OBJECT
+       ------------------------------------------------------------------ */
+    const CONFIG = {
+      realNameRachel: "Rachel",
+      realNameAnika: "Anika",
+      nicknameHer: "Mon Amour",
+      nicknameHim: "Love",
+      aliasHim: "sisyphuz",
+      
+      // Color Theme References
+      colors: {
+        cream: "#F8F5EE",
+        sageGreen: "#B9D7C2",
+        dustyPink: "#E8B9CD",
+        powderBlue: "#A9C8E8",
+        deepSage: "#465D52"
+      },
+
+      // Bed Messages
+      bedMessages: [
+        "A soft reminder: Remember that quiet moment when you leaned on me without needing to say anything? That felt warmer than any words.",
+        "You've been working hard. This little pixel bed is always ready for when you need a quiet breather.",
+        "Take a moment to relax, Mon Amour. You don't have to carry everything all at once."
+      ],
+
+      // Window Messages
+      windowDayMsg: "Daytime view: Outside, the world is bustling. But inside here, time moves at our pace.",
+      windowNightMsg: "Nighttime view: Look at the stars. Another quiet evening together.",
+
+      // Framed Picture Memory
+      pictureMsg: "The Library Smile:\n\nI still remember when you smiled at me back in the library. It wasn't just an ordinary friendly smile—it felt completely different to me. It stayed with me long after that day.",
+
+      // First Memory Details (Section 5)
+      firstMemory: {
+        title: "Where Our Story Began",
+        content: "Our first interaction happened right in front of the AV building (Athlete Village).\n\nThe day before, we had been talking about a book. I brought that book with me and handed it to you right there by AV.\n\nWe spent a little time together, just talking. My classes were finished for the day, so I had to head home first, while you still had another class to attend. You wanted to come with me, but our schedules just didn't match up that day.\n\nIt was simple and brief, but it remains one of my absolute favorite memories."
+      },
+
+      // Bookshelf Books
+      books: [
+        {
+          title: "Things Worth Remembering",
+          desc: "A small collection of inside jokes, shared commutes, late-night talks, and quiet smiles."
+        },
+        {
+          title: "The Weight We Don't Have to Carry",
+          desc: "A quiet nod to sisyphuz: Life can feel like rolling a boulder uphill sometimes, but with you around, the weight feels entirely light."
+        }
+      ],
+
+      // Everyday Memories (Section 7)
+      memoriesList: [
+        { title: "Commuting Together", text: "Walking together and sharing long commutes." },
+        { title: "Pick-up & Rides", text: "Picking you up and riding home side by side." },
+        { title: "Waiting for the Jeepney", text: "Waiting with you until you safely got a jeepney before I looked for mine." },
+        { title: "Late-night Shows", text: "Watching reels or dramas together before going to sleep." },
+        { title: "Cooking Moments", text: "Cooking together and making small culinary adventures." },
+        { title: "Cleaning Up", text: "Tidying up and cleaning together." },
+        { title: "Unwinding", text: "Giving each other relaxing massages after a long day." },
+        { title: "Unpredictable Surprises", text: "The unexpected, delightful ways you manage to surprise me." },
+        { title: "Silly Teasing", text: "Doing silly things together and teasing each other endlessly." }
+      ],
+
+        // Claw Machine Outcomes
+      clawPrizes: [
+        { name: "Green Squishy 🐸", msg: "You won a soft green squishy! Just as cute and squishy as you like." },
+        { name: "Little Plushie 🧸", msg: "You won a little plush companion for your desk!" },
+        { name: "Love Note Envelope 💌", msg: "Note inside: 'You're doing great today, boss.'" },
+        { name: "Golden Star ⭐", msg: "Rare item unlocked! You get 100 bonus Mon Amour points!" }
+      ],
+      clawMissMessages: [
+        "Not this time, boss. The machine is testing your patience.",
+        "Almost had it! The claw slipped right at the edge.",
+        "The plushie wiggled free! Give it another shot."
+      ],
+
+      // Royal Decrees (Section 8)
+      royalDecrees: [
+        "Royal decree: You are hereby ordered to accept one sincere compliment without arguing.",
+        "The boss requests immediate delivery of one virtual squishy.",
+        "Your mission: Take a break right now and stop being so hard on yourself.",
+        "Royal inspection: Is the room clean enough for Her Majesty?",
+"Do you want some massage (with my gentle power)?",
+"You must be tired, want some pancakes or sweets?",
+"hey, remember to save for yourself too",
+"tired? go for a short break.",
+"ha?hatdog?",
+
+        "Decree of the day: You must drink a glass of water and rest your eyes."
+      ],
+
+      // Secret Room & Password
+      secretPassword: "20-1006",
+
+      // Final Letter Text (Section 10)
+      finalLetter: `Dearest Mon Amour,
+
+I wanted to make this tiny pixel hideout for you because I know how much you appreciate thoughtful details, quiet spaces, and cute things.
+
+I love your creative, business-minded brain and the way you approach things with determination. You have this tough-girl personality on the outside, but underneath, you have the softest heart. From your love for the color green and cute squishies to the thoughtful, unpredictable ways you surprise me, everything about you stands out.
+
+I often think back to that library smile that felt so different from anything else, and handing you that book in front of AV. But more than big moments, I cherish our everyday life when we're commuting together, waiting for jeepneys, watching reels before bed, cooking, cleaning, and just teasing each other.
+
+Thank you for being you. You don't have to carry every weight alone.
+
+Always here, sipping coffee.
+sisyphuz`
+    };
+
+    /* ------------------------------------------------------------------
+       2. STATE & INITIALIZATION
+       ------------------------------------------------------------------ */
+    let lampOn = true;
+    let isNight = false;
+    let clawPos = 50; // percentage
+    let audioPlaying = false;
+
+    window.onload = function() {
+      renderMemoryGrid();
+    };
+
+    /* ------------------------------------------------------------------
+       3. INTERACTIVE ROOM ACTIONS
+       ------------------------------------------------------------------ */
+    function openModal(title, bodyHtml, footerHtml = '') {
+      document.getElementById('modalTitle').innerText = title;
+      document.getElementById('modalBody').innerHTML = bodyHtml;
+      document.getElementById('modalFooter').innerHTML = footerHtml;
+      document.getElementById('modalOverlay').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('active');
+    }
+
+    function interactBed() {
+      const randomMsg = CONFIG.bedMessages[Math.floor(Math.random() * CONFIG.bedMessages.length)];
+      openModal("The Cozy Bed 🛏️", `<p>${randomMsg}</p>`);
+    }
+
+    function interactLamp() {
+      lampOn = !lampOn;
+      const room = document.getElementById('roomCard');
+      const icon = document.getElementById('lampIcon');
+      
+      if (lampOn) {
+        room.classList.remove('lamp-off');
+        icon.innerText = "💡";
+        openModal("Bedside Lamp 💡", "<p>The lamp casts a warm, soft glow over the room.</p>");
+      } else {
+        room.classList.add('lamp-off');
+        icon.innerText = "🔌";
+        openModal("Bedside Lamp 💡", "<p>You switched off the lamp. The room is dim and cozy now.</p>");
+      }
+    }
+
+    function interactWindow() {
+      isNight = !isNight;
+      const icon = document.getElementById('windowIcon');
+      
+      if (isNight) {
+        document.body.classList.add('night-mode');
+        icon.innerText = "🌙";
+        openModal("Window 🌙", `<p>${CONFIG.windowNightMsg}</p>`);
+      } else {
+        document.body.classList.remove('night-mode');
+        icon.innerText = "🪟";
+        openModal("Window 🪟", `<p>${CONFIG.windowDayMsg}</p>`);
+      }
+    }
+
+    function interactPicture() {
+      openModal("Framed Memory 🖼️", `<p style="white-space:pre-line;">${CONFIG.pictureMsg}</p>`);
+    }
+
+    function interactPlant() {
+      openModal("Potted Plant 🪴", "<p>A healthy green plant sitting quietly in the corner. It thrives on attention and quiet surroundings—just like this hideout.</p>");
+    }
+
+    function interactRug() {
+      openModal("Cozy Rug 🧶", "<p>A soft pixel rug underfoot. Perfect for kicking off your shoes after a long day.</p>");
+    }
+
+    function interactBookshelf() {
+      let booksHtml = CONFIG.books.map(b => `
+        <div style="margin-bottom:12px; padding:8px; border:1px dashed var(--sage-green); border-radius:4px;">
+          <strong>📖 ${b.title}</strong>
+          <p style="font-size:0.85rem; margin-top:4px;">${b.desc}</p>
+        </div>
+      `).join('');
+
+      booksHtml += `
+        <hr style="margin:15px 0; border:none; border-top:1px solid var(--deep-sage);">
+        <p style="font-size:0.85rem; margin-bottom:8px;"><strong>🔑 Secret Door:</strong> There seems to be a hidden passage behind the top shelf...</p>
+        <button class="btn btn-green" onclick="openPasswordPrompt()">Enter Password</button>
+      `;
+
+      openModal("The Bookshelf 📚", booksHtml);
+    }
+
+    function openMemoryRoomModal() {
+      openModal(
+        CONFIG.firstMemory.title,
+        `<p style="white-space:pre-line;">${CONFIG.firstMemory.content}</p>`
+      );
+    }
+
+    /* ------------------------------------------------------------------
+       4. CLAW MACHINE LOGIC
+       ------------------------------------------------------------------ */
+    function moveClawLeft() {
+      if (clawPos > 15) {
+        clawPos -= 15;
+        document.getElementById('clawMech').style.left = clawPos + "%";
+      }
+    }
+
+    function moveClawRight() {
+      if (clawPos < 85) {
+        clawPos += 15;
+        document.getElementById('clawMech').style.left = clawPos + "%";
+      }
+    }
+
+    function dropClaw() {
+      const claw = document.getElementById('clawMech');
+      claw.style.top = "110px";
+
+      setTimeout(() => {
+        // Evaluate win/loss
+        const win = Math.random() > 0.4;
+        claw.style.top = "10px";
+
+        setTimeout(() => {
+          if (win) {
+            const prize = CONFIG.clawPrizes[Math.floor(Math.random() * CONFIG.clawPrizes.length)];
+            openModal(
+              "PRIZE WON! 🎉",
+              `<p><strong>${prize.name}</strong></p><p style="margin-top:8px;">${prize.msg}</p>`
+            );
+          } else {
+            const missMsg = CONFIG.clawMissMessages[Math.floor(Math.random() * CONFIG.clawMissMessages.length)];
+            openModal(
+              "So Close! 👾",
+              `<p>${missMsg}</p>
+               <div style="margin-top:12px; padding:8px; background:rgba(185,215,194,0.3); border-radius:4px; font-size:0.8rem;">
+                 🏆 <strong>Achievement Unlocked:</strong> Android battery still undefeated. 📱🔋
+               </div>`
+            );
+          }
+        }, 600);
+      }, 700);
+    }
+
+    /* ------------------------------------------------------------------
+       5. MEMORY BOARD & ROYAL DECREE
+       ------------------------------------------------------------------ */
+    function renderMemoryGrid() {
+      const grid = document.getElementById('memoryGrid');
+      grid.innerHTML = CONFIG.memoriesList.map(item => `
+        <div class="memory-card" onclick="openModal('${item.title}', '<p>${item.text}</p>')">
+          <strong>📍 ${item.title}</strong>
+          <p style="font-size:0.8rem; margin-top:4px; opacity:0.85;">${item.text}</p>
+        </div>
+      `).join('');
+    }
+
+    function generateDecree() {
+      const decree = CONFIG.royalDecrees[Math.floor(Math.random() * CONFIG.royalDecrees.length)];
+      document.getElementById('decreeDisplay').innerText = decree;
+    }
+
+    /* ------------------------------------------------------------------
+       6. SECRET PASSWORD ROOM & LETTER
+       ------------------------------------------------------------------ */
+    function openPasswordPrompt() {
+      const html = `
+        <p style="font-size:0.85rem; margin-bottom:10px;">Enter the secret code to open Mon Amour's Private Study Room:</p>
+        <div class="password-form">
+          <input type="password" id="passInput" class="password-input" placeholder="Enter password...">
+          <button class="btn btn-green" onclick="verifyPassword()">Unlock Secret Room</button>
+        </div>
+        <p id="passErr" style="color:red; font-size:0.8rem; margin-top:6px; display:none;">Incorrect password. Try again!</p>
+      `;
+      openModal("Secret Password Gate 🔐", html);
+    }
+
+    function verifyPassword() {
+      const entered = document.getElementById('passInput').value;
+      if (entered === CONFIG.secretPassword) {
+        openSecretRoom();
+      } else {
+        document.getElementById('passErr').style.display = "block";
+      }
+    }
+
+    function openSecretRoom() {
+      const html = `
+        <p style="font-size:0.85rem; margin-bottom:12px;">You've unlocked the quiet secret room. On the desk sits an envelope addressed to you.</p>
+        <div class="letter-content">${CONFIG.finalLetter}</div>
+      `;
+      openModal("Mon Amour's Secret Hideout 💌", html);
+    }
+
+    /* ------------------------------------------------------------------
+       7. AUDIO TOGGLE (NON-BLOCKING FALLBACK)
+       ------------------------------------------------------------------ */
+    function toggleAudio() {
+      const audio = document.getElementById('bgMusic');
+      const text = document.getElementById('audioText');
+      
+      if (!audioPlaying) {
+        audio.play().then(() => {
+          audioPlaying = true;
+          text.innerText = "Music: On";
+        }).catch(err => {
+          console.log("Audio playback not supported or file missing.", err);
+          alert("Audio file 'bgm.mp3' not found in root directory. Add 'bgm.mp3' to enable music!");
+        });
+      } else {
+        audio.pause();
+        audioPlaying = false;
+        text.innerText = "Music: Off";
+      }
+    }
+  </script>
+</body>
+</html>
